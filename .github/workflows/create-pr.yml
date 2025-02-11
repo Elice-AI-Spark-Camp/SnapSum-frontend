@@ -1,0 +1,102 @@
+name: Build, Test, and Create PR
+
+on:
+  push:
+    branches:
+      - feat-* # "feat-"로 시작하는 브랜치에 푸시될 때 트리거
+
+permissions:
+  contents: write # 코드 변경 및 브랜치 관련 작업
+  pull-requests: write # PR 생성 및 업데이트 권한
+  issues: write # PR과 이슈 연동 권한
+  actions: write # 워크플로우 관련 작업 (필요시 추가)
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Set up Git
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 3. Extract Issue Number and PR Trigger
+      - name: Extract Issue Number and PR Trigger
+        id: extract_commit
+        run: |
+          BRANCH_NAME=${GITHUB_REF##*/}
+          LAST_COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          echo "Branch name: $BRANCH_NAME"
+          echo "Last commit message: $LAST_COMMIT_MESSAGE"
+
+          # Extract issue number from branch name
+          ISSUE_NUMBER=$(echo "$BRANCH_NAME" | grep -oE '[0-9]+')
+          if [ -z "$ISSUE_NUMBER" ]; then
+            echo "No issue number found in branch name. Defaulting to UNKNOWN."
+            echo "ISSUE_NUMBER=UNKNOWN" >> $GITHUB_ENV
+          else
+            echo "ISSUE_NUMBER=$ISSUE_NUMBER" >> $GITHUB_ENV
+          fi
+
+          # Check if commit message contains PR trigger
+          if [[ "$LAST_COMMIT_MESSAGE" == *"createPR"* ]]; then
+            echo "TRIGGER_PR=true" >> $GITHUB_ENV
+            echo "PR_TITLE=$LAST_COMMIT_MESSAGE" >> $GITHUB_ENV
+          else
+            echo "TRIGGER_PR=false" >> $GITHUB_ENV
+          fi
+
+      # 4. Set up Node.js
+      - name: Set up Node.js (Latest LTS)
+        uses: actions/setup-node@v3
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      # 5. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 6. Run build
+      - name: Run build
+        run: npm run build
+
+      # 7. Run tests (conditionally)
+      - name: Run tests if available
+        run: |
+          if grep -q '"test":' package.json; then
+            echo "Test script found. Running tests..."
+            npm test
+          else
+            echo "No test script found. Skipping tests..."
+          fi
+
+      # 8. Conditionally Create Pull Request
+      - name: Create Pull Request
+        if: env.TRIGGER_PR == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'Automated build and test success'
+          branch: ${{ github.ref }} # PR의 소스 브랜치
+          title: '${{ env.PR_TITLE }}' # PR 제목을 마지막 커밋 메시지로 설정
+          body: |
+            ## **📃** 관련 이슈
+            Related Issue: #${{ env.ISSUE_NUMBER }}
+
+            ## 📝 주요 작업 내용
+            ex) 설명 혹은 스크린샷
+
+            ## 📺 캡쳐본
+            (선택사항)
+
+            ## 💬 리뷰 요구사항
+            ex) 의논할 점 및 특별히 요구할 부분
+          base: dev # PR의 대상 브랜치
+          assignees: ${{ github.actor }} # 브랜치 생성자를 Assignee로 설정

@@ -1,0 +1,5 @@
+silent: true
+branchName: 'feat-${issue.number}-${issue.title}'
+autoLinkIssue: true
+autoCloseIssue: true
+autoDeleteBranch: true
