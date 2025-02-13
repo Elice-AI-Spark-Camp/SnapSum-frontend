@@ -14,7 +14,7 @@ export default function Info() {
 
       <div className="max-w-[768px] mx-auto px-6 py-10 flex flex-col items-center gap-8">
         <h1 className="text-xl font-bold text-center">
-          쉽고 빠르게 숏폼 영상 그리머이터가 되세요.
+          쉽고 빠르게 숏폼 영상 크리에이터가 되세요.
           <br />
           SNAPSUM에 불여넣기만 하면 시작입니다.
         </h1>
