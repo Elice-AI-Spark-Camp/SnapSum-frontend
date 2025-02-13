@@ -82,7 +82,7 @@ jobs:
         if: env.TRIGGER_PR == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }} 
           commit-message: 'Automated build and test success'
           branch: ${{ github.ref }} # PR의 소스 브랜치
           title: '${{ env.PR_TITLE }}' # PR 제목을 마지막 커밋 메시지로 설정
