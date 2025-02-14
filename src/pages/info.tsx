@@ -1,6 +1,7 @@
 import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useState } from 'react';
+import Input from '@/components/common/Input';
 
 export default function Info() {
   const [inputLink, setInputLink] = useState('');
@@ -9,8 +10,7 @@ export default function Info() {
   const handleLinkChange = (e) => {
     const link = e.target.value;
     setInputLink(link);
-    
-    // Simple validation for Naver Blog and Tistory links
+    //네이버랑 티스토리만 허용
     const isValidLink = link.includes('blog.naver.com') || link.includes('tistory.com');
     setIsError(!isValidLink && link.length > 0);
   };
@@ -20,6 +20,12 @@ export default function Info() {
       setIsError(false);
     }
   };
+
+  const helperTextWithBold = (
+    <span>
+      현재 SNAPSUM은 <strong>네이버 블로그</strong>, <strong>티스토리</strong> 링크만 이용 가능합니다.
+    </span>
+  );
 
   return (
     <Layout>
@@ -41,21 +47,14 @@ export default function Info() {
           SNAPSUM에 불여넣기만 하면 시작입니다.
         </h1>
 
-        <div className="w-full">
-          <input
-            type="text"
-            placeholder="링크를 입력해주세요"
-            className={`w-full px-4 py-3 rounded-[10px] border text-white  bg-primary ${
-              isError ? 'border-error text-error' : 'border-gray-default  focus:bg-gray-light'
-            } outline-none`}
-            value={inputLink}
-            onChange={handleLinkChange}
-            onFocus={handleInputFocus}
-          />
-          <p className="mt-2 text-sm text-center text-gray-500">
-            현재 SNAPSUM은 네이버 블로그, 티스토리 링크만 이용 가능합니다.
-          </p>
-        </div>
+        <Input
+          value={inputLink}
+          onChange={handleLinkChange}
+          onFocus={handleInputFocus}
+          isError={isError}
+          placeholder="링크를 입력해주세요"
+          helperText={helperTextWithBold}
+        />
 
         <div className="flex gap-4 w-full">
           <button className="flex-1 border border-gray-default rounded-[10px] py-2 text-sm">
