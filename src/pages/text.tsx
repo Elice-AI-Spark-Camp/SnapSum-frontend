@@ -14,9 +14,9 @@ export default function Text() {
       <Head>
         <title>SNAPSUM - 영상 제작</title>
       </Head>
-      <div className="w-[600px] mx-auto flex flex-col items-center gap-8">
+      <div className="w-[600px] h-auto mx-auto flex flex-col items-center gap-8">
         {/* 프로그레스 바 섹션 */}
-        <div className="w-[600px]  top-[96px] left-0 right-0 bg-white z-10">
+        <div className="w-[600px] left-0 right-0 bg-white z-10">
           <ProgressBar progress={67} variant="primary" />
           <div className="h-6" /> {/* 간격 */}
           <ProgressBar progress={67} variant="secondary" />
