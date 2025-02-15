@@ -12,7 +12,6 @@ export default function ChatMessage({
   message,
   showNavigationButtons = false,
   onPrevClick,
-  onNextClick
 }: ChatMessageProps) {
   return (
     <div className="w-full max-w-[335px] mx-auto">

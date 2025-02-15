@@ -12,7 +12,7 @@ export default function Info() {
   const [inputLink, setInputLink] = useState('');
   const [isError, setIsError] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
-  const { message, showToast } = useToastStore();
+  const { showToast } = useToastStore();
   const router = useRouter(); 
 
   const validateLink = (link: string) => {

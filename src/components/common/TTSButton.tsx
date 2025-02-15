@@ -1,5 +1,4 @@
 import { HiPlay } from "react-icons/hi";
-import { useState } from "react";
 
 interface TTSButtonProps {
   onClick: () => void;
