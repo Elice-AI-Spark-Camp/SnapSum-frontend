@@ -19,13 +19,20 @@ export default function Input({
   className,
   helperText,
 }: InputProps) {
+  const isValid = value.length > 0 && !isError;
+
   return (
     <div className="w-full">
       <input
         type="text"
         placeholder={placeholder}
-        className={`w-full px-4 py-3 rounded-[10px] border bg-primary
-          ${isError ? 'border-error' : 'border-gray-default focus:border-gray-400'} 
+        className={`w-full px-4 py-3 rounded-[10px] border
+          ${isError 
+            ? 'border-error bg-gray-default' 
+            : isValid
+              ? 'border-gray-400 bg-primary'
+              : 'border-gray-default bg-primary'
+          } 
           outline-none text-white placeholder:text-white
           focus:bg-gray-default [&:focus]:text-white ${className || ''}`}
         value={value}
