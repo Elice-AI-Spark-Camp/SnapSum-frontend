@@ -6,7 +6,7 @@ import { IoInformationCircleOutline } from "react-icons/io5";
 export default function Header() {
   return (
     <header className="fixed top-0 left-0 right-0">
-      <div className="max-w-[768px] mx-auto flex items-center justify-between px-4 py-3 relative">
+      <div className="max-w-[600px] mx-auto flex items-center justify-between px-4 py-3 relative">
         <Link href="/" className="cursor-pointer">
           <ChevronLeft className="w-6 h-6 text-primary" />
         </Link>
