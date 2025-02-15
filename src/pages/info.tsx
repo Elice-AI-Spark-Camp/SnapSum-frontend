@@ -67,7 +67,7 @@ export default function Info() {
   };
 
   const helperTextWithBold = (
-    <span className="text-[0.625rem]">
+    <span className="text-xs">
       현재 SNAPSUM은 <strong>네이버 블로그</strong>, <strong>티스토리</strong> 링크만 이용 가능합니다.
     </span>
   );
@@ -78,7 +78,7 @@ export default function Info() {
         <title>SNAPSUM</title>
       </Head>
       <div className="w-[335px] mx-auto flex flex-col items-center gap-8">
-        <h1 className="text-base font-bold text-center">
+        <h1 className="text-lg font-bold text-center">
           쉽고 빠르게 숏폼 영상 크리에이터가 되세요.
           <br />
           SNAPSUM에 불여넣기만 하면 시작입니다.
