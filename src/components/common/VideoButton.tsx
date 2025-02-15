@@ -1,18 +1,25 @@
+import { IoVideocam } from "react-icons/io5";
+
 interface VideoButtonProps {
-    onClick: () => void;
-    icon: React.ReactNode;
-    label: string;
-  }
-  
-  export default function VideoButton({ onClick, icon, label }: VideoButtonProps) {
-    return (
-      <button
-        onClick={onClick}
-        className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg"
-      >
-        {icon}
-        <span>{label}</span>
-      </button>
-    );
-  }
-  
+  onClick: () => void;
+}
+
+export default function VideoButton({ onClick }: VideoButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      className="
+        flex items-center justify-center gap-2 
+        w-[185px] h-[40px] 
+        bg-gray-default hover:bg-secondary 
+        rounded-[5px]
+        transition-colors
+      "
+    >
+      <IoVideocam size={25} className="text-primary" />
+      <span className="text-[0.938rem] font-bold text-primary">
+        영상 제작하기
+      </span>
+    </button>
+  );
+}
