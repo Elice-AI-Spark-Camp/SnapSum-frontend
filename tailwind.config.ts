@@ -9,9 +9,6 @@ export default {
   theme: {
     extend: {
       colors: {
-        // 기본 색상
-        background: "#ffffff",
-        foreground: "#171717",
         
         // 주요 색상별로 분리
         gray: {

@@ -2,6 +2,7 @@ interface InputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onFocus?: () => void;
+  onBlur?: () => void;
   placeholder?: string;
   isError?: boolean;
   className?: string;
@@ -12,6 +13,7 @@ export default function Input({
   value,
   onChange,
   onFocus,
+  onBlur,
   placeholder,
   isError,
   className,
@@ -22,13 +24,14 @@ export default function Input({
       <input
         type="text"
         placeholder={placeholder}
-        className={`w-full px-4 py-3 rounded-[10px] border bg-primary 
-          ${isError ? 'border-error' : 'border-gray-default focus:bg-gray-default'} 
-          outline-none text-white placeholder:text-gray-400 ${className || ''}`}
+        className={`w-full px-4 py-3 rounded-[10px] border bg-primary
+          ${isError ? 'border-error' : 'border-gray-default focus:border-gray-400'} 
+          outline-none text-white placeholder:text-white
+          focus:bg-gray-default [&:focus]:text-white ${className || ''}`}
         value={value}
         onChange={onChange}
         onFocus={onFocus}
-        style={{ color: 'white' }}  // 인라인 스타일로 흰색 강제 적용
+        onBlur={onBlur}
       />
       {helperText && (
         <p className={`mt-2 text-sm text-center ${isError ? 'text-error' : 'text-gray-500'}`}>

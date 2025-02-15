@@ -7,18 +7,24 @@ export default function Info() {
   const [inputLink, setInputLink] = useState('');
   const [isError, setIsError] = useState(false);
 
-  const handleLinkChange = (e) => {
-    const link = e.target.value;
-    setInputLink(link);
-    //네이버랑 티스토리만 허용
+  const validateLink = (link: string) => {
     const isValidLink = link.includes('blog.naver.com') || link.includes('tistory.com');
     setIsError(!isValidLink && link.length > 0);
+  };
+
+  const handleLinkChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const link = e.target.value;
+    setInputLink(link);
   };
 
   const handleInputFocus = () => {
     if (isError) {
       setIsError(false);
     }
+  };
+
+  const handleInputBlur = () => {
+    validateLink(inputLink);
   };
 
   const helperTextWithBold = (
@@ -31,9 +37,9 @@ export default function Info() {
     <Layout>
       <Head>
         <title>Snapsum</title>
-        <meta 
-          name="viewport" 
-          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" 
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
         />
         <meta name="theme-color" content="#ffffff" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -51,6 +57,7 @@ export default function Info() {
           value={inputLink}
           onChange={handleLinkChange}
           onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
           isError={isError}
           placeholder="링크를 입력해주세요"
           helperText={helperTextWithBold}

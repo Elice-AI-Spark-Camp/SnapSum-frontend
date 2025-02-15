@@ -9,5 +9,5 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+  font-family: 'Pretendard';
 }
