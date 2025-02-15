@@ -16,12 +16,12 @@ export default function ChatMessage({
   return (
     <div className="w-full max-w-[335px] mx-auto">
       {/* SNAPSUM 헤더 */}
-      <div className="text-black font-bold mb-2 text-sm">
+      <div className=" font-bold mb-2 text-xs">
         SNAPSUM
       </div>
 
       {/* 메시지 박스 */}
-      <div className="bg-[#2F2F2F] text-white rounded-xl p-4 shadow-lg">
+      <div className="bg-primary text-white rounded-xl p-4 shadow-lg">
         <p className="text-sm leading-relaxed">{message}</p>
       </div>
 
