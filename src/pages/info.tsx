@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useState } from 'react';
 import Input from '@/components/common/Input';
@@ -7,6 +6,7 @@ import { HiPlay } from 'react-icons/hi';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
+import CustomHead from "@/components/common/CustomHead";
 
 export default function Info() {
   const [inputLink, setInputLink] = useState('');
@@ -74,9 +74,7 @@ export default function Info() {
 
   return (
     <Layout>
-      <Head>
-        <title>SNAPSUM</title>
-      </Head>
+      <CustomHead title="SNAPSUM - 링크 선택" />
       <div className="w-[335px] mx-auto flex flex-col items-center gap-8">
         <h1 className="text-lg font-bold text-center">
           쉽고 빠르게 숏폼 영상 크리에이터가 되세요.
