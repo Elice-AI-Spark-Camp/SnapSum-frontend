@@ -19,7 +19,7 @@ export default function Text() {
         <div className="w-[600px] left-0 right-0 bg-white z-10">
           <ProgressBar progress={67} variant="primary" />
           <div className="h-6" /> {/* 간격 */}
-          <ProgressBar progress={67} variant="secondary" />
+          <ProgressBar progress={20} variant="secondary" />
         </div>
         <div className="flex gap-4">
           <VideoButton
