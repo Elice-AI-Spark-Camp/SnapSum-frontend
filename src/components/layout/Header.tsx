@@ -1,7 +1,6 @@
 // components/layout/Header.tsx
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
 import { ChevronLeft } from 'lucide-react';
 import { IoInformationCircleOutline } from "react-icons/io5";
 
@@ -10,22 +9,14 @@ interface HeaderProps {
 }
 
 export default function Header({ showInfo = true }: HeaderProps) {
-  const router = useRouter();
-
   return (
-    <header className="fixed top-0 left-0 right-0">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white">
       <div className="max-w-[600px] mx-auto flex items-center justify-between px-4 py-3 relative">
-        <button 
-          onClick={() => router.back()} 
-          className="cursor-pointer"
-        >
+        <Link href="/" className="cursor-pointer">
           <ChevronLeft className="w-6 h-6 text-primary" />
-        </button>
+        </Link>
         
-        <Link 
-          href="/" 
-          className="absolute left-1/2 transform -translate-x-1/2 mt-5 cursor-pointer"
-        >
+        <div className="absolute left-1/2 transform -translate-x-1/2 mt-5">
           <Image
             src="/assets/icons/header.png"
             alt="Snapsum Logo"
@@ -33,7 +24,7 @@ export default function Header({ showInfo = true }: HeaderProps) {
             height={100}
             priority
           />
-        </Link>
+        </div>
         
         {showInfo && <IoInformationCircleOutline className="w-6 h-6 text-primary" />}
       </div>

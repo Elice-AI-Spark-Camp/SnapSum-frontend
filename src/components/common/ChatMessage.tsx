@@ -14,15 +14,15 @@ export default function ChatMessage({
   onPrevClick,
 }: ChatMessageProps) {
   return (
-    <div className="w-full max-w-[335px] mx-auto">
+    <div className="w-full max-w-[264px] mx-auto">
       {/* SNAPSUM 헤더 */}
-      <div className=" font-bold mb-2 text-xs">
+      <div className=" font-bold mb-1 ml-1 text-xs">
         SNAPSUM
       </div>
 
       {/* 메시지 박스 */}
       <div className="bg-primary text-white rounded-xl p-4 shadow-lg">
-        <p className="text-sm leading-relaxed">{message}</p>
+        <p className="text-xs leading-relaxed">{message}</p>
       </div>
 
       {/* 네비게이션 버튼 (박스 밖) */}
