@@ -9,7 +9,7 @@ export default function Toast() {
 
   return (
     <div
-      className={`fixed top-10 left-1/2 transform -translate-x-1/2 px-6 py-3 
+      className={`fixed bottom-20 left-1/2 transform -translate-x-1/2 px-6 py-3 
         rounded-lg shadow-lg bg-[#FFFCF1] text-black
         z-50 flex items-center gap-2 text-[0.625rem]
         `}

@@ -20,7 +20,7 @@ export default function Button({
       onClick={onClick}
       className={`
         w-[100px] h-[50px]
-        rounded-[10px]
+        rounded-[5px]
         font-bold text-[0.625rem]
         flex flex-col items-center justify-center
         transition-colors duration-200

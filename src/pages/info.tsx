@@ -1,12 +1,12 @@
-import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useState } from 'react';
 import Input from '@/components/common/Input';
-import Button from '@/components/common/Button';
+import PlatformButton from '@/components/common/PlatformButton';
 import { HiPlay } from 'react-icons/hi';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
+import CustomHead from "@/components/common/CustomHead";
 
 export default function Info() {
   const [inputLink, setInputLink] = useState('');
@@ -74,62 +74,62 @@ export default function Info() {
 
   return (
     <Layout>
-      <Head>
-        <title>SNAPSUM</title>
-      </Head>
-      <div className="w-[335px] mx-auto flex flex-col items-center gap-8">
-        <h1 className="text-lg font-bold text-center">
-          쉽고 빠르게 숏폼 영상 크리에이터가 되세요.
-          <br />
-          SNAPSUM에 불여넣기만 하면 시작입니다.
-        </h1>
+      <CustomHead title="SNAPSUM - 링크 선택" />
+      <div className="min-h-[calc(90vh-96px)] flex items-center justify-center">
+        <div className="w-[335px] flex flex-col items-center gap-8">
+          <h1 className="text-lg font-bold text-center">
+            쉽고 빠르게 숏폼 영상 크리에이터가 되세요.
+            <br />
+            SNAPSUM에 불여넣기만 하면 시작입니다.
+          </h1>
 
-        <Input 
-          value={inputLink} 
-          onChange={handleLinkChange} 
-          onFocus={handleInputFocus} 
-          onBlur={handleInputBlur} 
-          placeholder="링크를 입력해주세요" 
-          isError={isError} 
-          helperText={helperTextWithBold} 
-        />
+          <Input 
+            value={inputLink} 
+            onChange={handleLinkChange} 
+            onFocus={handleInputFocus} 
+            onBlur={handleInputBlur} 
+            placeholder="링크를 입력해주세요" 
+            isError={isError} 
+            helperText={helperTextWithBold} 
+          />
 
-        <div className="flex gap-4 justify-center w-full">
-          <Button
-            icon={<Image src="/assets/icons/YouTube.png" width={30} height={20} alt="Youtube" />}
-            isSelected={selectedPlatform === 'youtube'}
-            onClick={() => setSelectedPlatform('youtube')}
+          <div className="flex gap-4 justify-center w-full">
+            <PlatformButton
+              icon={<Image src="/assets/icons/YouTube.png" width={30} height={20} alt="Youtube" />}
+              isSelected={selectedPlatform === 'youtube'}
+              onClick={() => setSelectedPlatform('youtube')}
+            >
+              youtube
+            </PlatformButton>
+            <PlatformButton
+              icon={<Image src="/assets/icons/TikTok.png" width={20} height={20} alt="TikTok" />}
+              isSelected={selectedPlatform === 'tiktok'}
+              onClick={() => setSelectedPlatform('tiktok')}
+            >
+              tiktok
+            </PlatformButton>
+            <PlatformButton
+              icon={<Image src="/assets/icons/Instagram.png" width={20} height={20} alt="Instagram" />}
+              isSelected={selectedPlatform === 'instagram'}
+              onClick={() => setSelectedPlatform('instagram')}
+            >
+              instagram
+            </PlatformButton>
+          </div>
+
+          <button 
+            className="
+              flex items-center gap-2 
+              text-primary
+              px-6 py-3 rounded-[10px]
+              font-bold
+            "
+            onClick={handleSubmit}
           >
-            youtube
-          </Button>
-          <Button
-            icon={<Image src="/assets/icons/TikTok.png" width={20} height={20} alt="TikTok" />}
-            isSelected={selectedPlatform === 'tiktok'}
-            onClick={() => setSelectedPlatform('tiktok')}
-          >
-            tiktok
-          </Button>
-          <Button
-            icon={<Image src="/assets/icons/Instagram.png" width={20} height={20} alt="Instagram" />}
-            isSelected={selectedPlatform === 'instagram'}
-            onClick={() => setSelectedPlatform('instagram')}
-          >
-            instagram
-          </Button>
+            <HiPlay size={24} />
+            시작하기
+          </button>
         </div>
-
-        <button 
-          className="
-            flex items-center gap-2 
-            text-primary
-            px-6 py-3 rounded-[10px]
-            font-bold
-          "
-          onClick={handleSubmit}
-        >
-          <HiPlay size={24} />
-          시작하기
-        </button>
       </div>
     </Layout>
   );

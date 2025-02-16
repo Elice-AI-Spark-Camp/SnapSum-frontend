@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ showInfo = true }: HeaderProps) {
   return (
-    <header className="fixed top-0 left-0 right-0">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white">
       <div className="max-w-[600px] mx-auto flex items-center justify-between px-4 py-3 relative">
         <Link href="/" className="cursor-pointer">
           <ChevronLeft className="w-6 h-6 text-primary" />
