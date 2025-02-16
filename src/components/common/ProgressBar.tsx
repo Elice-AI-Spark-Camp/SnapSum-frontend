@@ -1,7 +1,3 @@
-import { HiPlay } from "react-icons/hi";
-import { useState } from "react";
-import { IoInformationCircleOutline } from "react-icons/io5";
-
 interface ProgressBarProps {
   progress: number;
   variant?: "primary" | "secondary";
