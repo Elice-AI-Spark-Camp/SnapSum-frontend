@@ -7,7 +7,7 @@ import CustomHead from "@/components/common/CustomHead";
 import TTSButton from "@/components/common/TTSButton";
 import { useState } from 'react';
 
-export default function tts() {
+export default function TTS() {  // 대문자로 변경
   const router = useRouter();
   const { platform, paragraphCount } = router.query;
   const platformName = typeof platform === 'string' ? platform : '';
@@ -25,7 +25,7 @@ export default function tts() {
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - TTS 선택" />
-
+      
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={2}
@@ -43,8 +43,7 @@ export default function tts() {
             />
           </div>
 
-            </div>
-          <div className="w-[400px] grid grid-cols-2 gap-1 justify-items-center">
+          <div className="grid grid-cols-2 gap-4 justify-items-center">
             {ttsOptions.map((tts) => (
               <TTSButton
                 key={tts.id}
@@ -55,6 +54,7 @@ export default function tts() {
               />
             ))}
           </div>
+        </div>
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white py-6">
