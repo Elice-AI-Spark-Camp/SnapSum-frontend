@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import VideoButton from '@/components/common/VideoButton';
 import TTSButton from "@/components/common/TTSButton";
@@ -6,20 +5,19 @@ import { useState } from "react";
 import ProgressBar from "@/components/common/ProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
+import CustomHead from "@/components/common/CustomHead";
 
 export default function Text() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   return (
     <Layout showInfo={false}>
-      <Head>
-        <title>SNAPSUM - 영상 제작</title>
-      </Head>
+      <CustomHead title="SNAPSUM - 텍스트 추출" />
       <div className="w-[600px] h-auto mx-auto flex flex-col items-center gap-8">
         {/* 프로그레스 바 섹션 */}
         <div className="w-[600px] left-0 right-0 bg-white z-10">
           <ProgressBar progress={67} variant="primary" />
           <div className="h-6" /> {/* 간격 */}
-          <ProgressBar progress={67} variant="secondary" />
+          <ProgressBar progress={20} variant="secondary" />
         </div>
         <div className="flex gap-4">
           <VideoButton

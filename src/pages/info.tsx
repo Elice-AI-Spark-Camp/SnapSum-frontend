@@ -1,12 +1,12 @@
-import Head from "next/head";
 import Layout from "@/components/layout/Layout";
 import { useState } from 'react';
 import Input from '@/components/common/Input';
-import Button from '@/components/common/Button';
+import PlatformButton from '@/components/common/PlatformButton';
 import { HiPlay } from 'react-icons/hi';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
+import CustomHead from "@/components/common/CustomHead";
 
 export default function Info() {
   const [inputLink, setInputLink] = useState('');
@@ -74,9 +74,7 @@ export default function Info() {
 
   return (
     <Layout>
-      <Head>
-        <title>SNAPSUM</title>
-      </Head>
+      <CustomHead title="SNAPSUM - 링크 선택" />
       <div className="w-[335px] mx-auto flex flex-col items-center gap-8">
         <h1 className="text-lg font-bold text-center">
           쉽고 빠르게 숏폼 영상 크리에이터가 되세요.
@@ -95,27 +93,27 @@ export default function Info() {
         />
 
         <div className="flex gap-4 justify-center w-full">
-          <Button
+          <PlatformButton
             icon={<Image src="/assets/icons/YouTube.png" width={30} height={20} alt="Youtube" />}
             isSelected={selectedPlatform === 'youtube'}
             onClick={() => setSelectedPlatform('youtube')}
           >
             youtube
-          </Button>
-          <Button
+          </PlatformButton>
+          <PlatformButton
             icon={<Image src="/assets/icons/TikTok.png" width={20} height={20} alt="TikTok" />}
             isSelected={selectedPlatform === 'tiktok'}
             onClick={() => setSelectedPlatform('tiktok')}
           >
             tiktok
-          </Button>
-          <Button
+          </PlatformButton>
+          <PlatformButton
             icon={<Image src="/assets/icons/Instagram.png" width={20} height={20} alt="Instagram" />}
             isSelected={selectedPlatform === 'instagram'}
             onClick={() => setSelectedPlatform('instagram')}
           >
             instagram
-          </Button>
+          </PlatformButton>
         </div>
 
         <button 
