@@ -16,6 +16,12 @@ export default function Text() {
   const [paragraphs, setParagraphs] = useState(['샘플 텍스트입니다. SNAPSUM은 AI를 활용한 숏폼 영상 제작 서비스로 누구나 쉽게 영상 크리에이터로의 전환을 돕습니다. 먼저 링크를 불여넣고, 업로드하고자 하는 플랫폼을 선택 선택합니다. 링크에서 그를 원하는 텍스트를 AI가 분석하고, 요약한 텍스트를 사용자가 자유롭게 문단으로 분리할 수 있습니다. 분리한 문단 기준으로 이미지를 생성하고, 선택한 TTS를 합쳐 영상을 제작하게 됩니다.']);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
+    // 방향키 허용
+    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+      return;
+    }
+
+    // Enter와 Backspace 처리
     if (e.key !== 'Enter' && e.key !== 'Backspace') {
       e.preventDefault();
       return;
@@ -46,7 +52,8 @@ export default function Text() {
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - 영상 제작" />
-      
+
+      {/* Header와 Progress Bar 영역 */}
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={1}
@@ -55,7 +62,8 @@ export default function Text() {
         />
       </div>
 
-      <div className="w-[600px] mx-auto px-6">
+      {/* 컨텐츠 영역 */}
+      <div className="relative w-[600px] mx-auto px-2 ">
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
@@ -74,7 +82,7 @@ export default function Text() {
             </span>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-hidden">
             {paragraphs.map((text, index) => (
               <div key={index} className="relative group">
                 <div className="relative flex items-start gap-2">
@@ -85,12 +93,12 @@ export default function Text() {
                     value={text}
                     readOnly
                     onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="w-full min-h-[80px] p-4 resize-none focus:outline-none"
+                    className="w-full min-h-[80px] p-2 resize-none focus:outline-none"
                     placeholder="텍스트를 입력하세요..."
                   />
                 </div>
                 {index < paragraphs.length - 1 && (
-                  <div className="w-full h-px bg-gray-light my-4" />
+                  <div className="w-full h-px bg-gray-light my-1" />
                 )}
               </div>
             ))}
@@ -98,6 +106,7 @@ export default function Text() {
         </div>
       </div>
 
+      {/* 하단 네비게이션 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white py-6">
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
