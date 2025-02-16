@@ -1,4 +1,3 @@
-// components/common/NavigationButton.tsx
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface NavigationButtonProps {
@@ -10,7 +9,7 @@ interface NavigationButtonProps {
 export default function NavigationButton({ 
   direction, 
   onClick, 
-  textType = 'long'
+  textType = 'long' 
 }: NavigationButtonProps) {
   const getText = () => {
     if (textType === 'short') {
@@ -22,11 +21,13 @@ export default function NavigationButton({
   return (
     <button
       onClick={onClick}
-      className="flex items-center gap-1 px-2 py-1 text-sm text-primary font-bold transition-colors"
+      className={`flex items-center gap-1 px-1 py-1 ${
+        textType === 'short' ? 'text-xs' : 'text-sm'
+      } text-primary font-bold transition-colors`}
     >
-      {direction === 'prev' && <ChevronLeft className="w-4 h-4" />}
+      {direction === 'prev' && <ChevronLeft className="w-5 h-5" />}
       {getText()}
-      {direction === 'next' && <ChevronRight className="w-4 h-4" />}
+      {direction === 'next' && <ChevronRight className="w-5 h-5" />}
     </button>
   );
 }

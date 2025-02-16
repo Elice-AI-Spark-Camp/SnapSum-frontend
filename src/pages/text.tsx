@@ -8,7 +8,6 @@ import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
 import { INITIAL_TEXT } from '@/constants/text';
-
 export default function Text() {
   const router = useRouter();
   const { platform } = router.query;
@@ -51,7 +50,7 @@ export default function Text() {
       e.preventDefault();
       const newParagraphs = [...paragraphs];
       const mergedText = newParagraphs[index - 1] + newParagraphs[index];
-      
+
       // 콘솔에만 BR 태그 포함하여 로깅
       console.log('Merged text:', {
         previous: `${newParagraphs[index - 1]}<br/>`,
@@ -64,6 +63,7 @@ export default function Text() {
       setParagraphs(newParagraphs);
     }
   };
+
 
 
   return (
@@ -115,7 +115,7 @@ export default function Text() {
                   />
                 </div>
                 {index < paragraphs.length - 1 && (
-                  <div className="w-full h-px bg-gray-light my-1" />
+                  <div className="w-full h-[2px] bg-gray-default my-1" />
                 )}
               </div>
             ))}
@@ -133,7 +133,7 @@ export default function Text() {
           />
           <NavigationButton
             direction="next"
-            onClick={() => console.log('next')}
+            onClick={() => router.push(`/tts?platform=${platformName}&paragraphCount=${paragraphs.length}`)}
             textType="long"
           />
         </div>
