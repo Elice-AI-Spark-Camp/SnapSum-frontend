@@ -132,7 +132,7 @@ export default function Text() {
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
             direction="prev"
-            onClick={() => console.log('prev')}
+            onClick={() => router.back()}
             textType="long"
           />
           <NavigationButton
