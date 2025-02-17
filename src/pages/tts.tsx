@@ -25,7 +25,7 @@ export default function TTS() {  // 대문자로 변경
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - TTS 선택" />
-      
+
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={2}
@@ -34,25 +34,28 @@ export default function TTS() {  // 대문자로 변경
         />
       </div>
 
-      <div className="relative w-[600px] mx-auto px-2">
+      <div className="relative max-w-[600px] mx-auto px-2">
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
               message="영상에서 재생할 목소리를 선택해주세요."
-              showNavigationButtons={false}
+              showNavigationButtons
+              onPrevClick={() => router.back()}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4 justify-items-center">
-            {ttsOptions.map((tts) => (
-              <TTSButton
-                key={tts.id}
-                onClick={() => setSelectedTTS(tts.id)}
-                isSelected={selectedTTS === tts.id}
-                label={tts.label}
-                sublabel={tts.sublabel}
-              />
-            ))}
+          <div className="flex justify-center">
+            <div className="grid grid-cols-2 max-w-[410px] gap-[10px]">
+              {ttsOptions.map((tts) => (
+                <TTSButton
+                  key={tts.id}
+                  onClick={() => setSelectedTTS(tts.id)}
+                  isSelected={selectedTTS === tts.id}
+                  label={tts.label}
+                  sublabel={tts.sublabel}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
