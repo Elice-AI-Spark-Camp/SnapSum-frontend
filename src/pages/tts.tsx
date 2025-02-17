@@ -6,12 +6,14 @@ import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
 import TTSButton from "@/components/common/TTSButton";
 import { useState } from 'react';
+import { useToastStore } from '@/store/useToastStore';
 
-export default function TTS() {  // 대문자로 변경
+export default function TTS() {
   const router = useRouter();
   const { platform, paragraphCount } = router.query;
   const platformName = typeof platform === 'string' ? platform : '';
   const count = typeof paragraphCount === 'string' ? parseInt(paragraphCount, 10) : 0;
+  const { showToast } = useToastStore();
 
   const [selectedTTS, setSelectedTTS] = useState<string>('');
 
@@ -22,10 +24,25 @@ export default function TTS() {  // 대문자로 변경
     { id: 'male_b', label: '남성 B', sublabel: '목소리에 대한\n간단한 설명' }
   ];
 
+  const handleNext = () => {
+    if (!selectedTTS) {
+      showToast("목소리를 선택해주세요.");
+      return;
+    }
+    router.push({
+      pathname: '/img',
+      query: { 
+        platform: platformName,
+        paragraphCount: count,
+        tts: selectedTTS
+      }
+    });
+  };
+
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - TTS 선택" />
-
+      
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={2}
@@ -69,7 +86,7 @@ export default function TTS() {  // 대문자로 변경
           />
           <NavigationButton
             direction="next"
-            onClick={() => router.push(`/video?platform=${platformName}&paragraphCount=${count}`)}
+            onClick={handleNext}
             textType="long"
           />
         </div>
