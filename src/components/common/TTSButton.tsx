@@ -12,7 +12,7 @@ export default function TTSButton({ onClick, isSelected = false, label, sublabel
     <button
       onClick={onClick}
       className={`
-        grid grid-cols-2 items-center gap-2 p-4 w-[200px] h-[100px]
+        grid grid-cols-2 items-center gap-2 p-4 w-[170px] md:w-[200px] h-[100px]
         rounded-xl border border-gray-default
         transition-colors duration-200
         ${isSelected 
