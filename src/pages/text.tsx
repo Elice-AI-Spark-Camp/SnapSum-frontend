@@ -14,14 +14,19 @@ export default function Text() {
   const platformName = typeof platform === 'string' ? platform : '';
 
   const [paragraphs, setParagraphs] = useState([INITIAL_TEXT]);
-
+  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
+    // 모바일에서도 작동하도록 수정
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       return;
     }
 
     if (e.key !== 'Enter' && e.key !== 'Backspace') {
-      e.preventDefault();
+      if (!isMobile) {
+        e.preventDefault();
+      }
       return;
     }
 
@@ -35,7 +40,6 @@ export default function Text() {
       const firstHalf = currentText.slice(0, cursorPosition);
       const secondHalf = currentText.slice(cursorPosition);
 
-      // 콘솔에만 BR 태그 포함하여 로깅
       console.log('Split text:', {
         original: currentText,
         firstPart: `${firstHalf}<br/>`,
@@ -46,12 +50,11 @@ export default function Text() {
       const newParagraphs = [...paragraphs];
       newParagraphs.splice(index, 1, firstHalf, secondHalf);
       setParagraphs(newParagraphs);
-    } else if (e.key === 'Backspace' && index > 0) {
+    } else if (e.key === 'Backspace' && index > 0 && paragraphs[index].length === 0) {
       e.preventDefault();
       const newParagraphs = [...paragraphs];
       const mergedText = newParagraphs[index - 1] + newParagraphs[index];
 
-      // 콘솔에만 BR 태그 포함하여 로깅
       console.log('Merged text:', {
         previous: `${newParagraphs[index - 1]}<br/>`,
         current: newParagraphs[index],
@@ -63,6 +66,7 @@ export default function Text() {
       setParagraphs(newParagraphs);
     }
   };
+
 
 
 
@@ -80,13 +84,13 @@ export default function Text() {
       </div>
 
       {/* 컨텐츠 영역 */}
-      <div className="relative w-[600px] mx-auto px-2 ">
+      <div className="relative max-w-[600px] mx-auto px-2 ">
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
               message="안녕하세요, 저는 당신의 소중한 영상 제작을 AI로 도울 SNAPSUM 입니다. 블로그는 링크에 있는 글을 자동 정리 부탁드려요."
               showNavigationButtons
-              onPrevClick={() => console.log('prev')}
+              onPrevClick={() => router.back()}         
             />
           </div>
 
@@ -128,7 +132,7 @@ export default function Text() {
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
             direction="prev"
-            onClick={() => console.log('prev')}
+            onClick={() => router.back()}
             textType="long"
           />
           <NavigationButton
