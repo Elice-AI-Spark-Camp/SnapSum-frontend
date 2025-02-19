@@ -24,25 +24,34 @@ export default function TTS() {
     { id: 'male_b', label: '남성 B', sublabel: '목소리에 대한\n간단한 설명' }
   ];
 
+  // TTS.tsx
+  const handleBack = () => {
+    router.push({
+      pathname: '/text',
+      query: router.query  // 현재의 모든 query 파라미터를 그대로 전달
+    });
+  };
+
   const handleNext = () => {
     if (!selectedTTS) {
       showToast("목소리를 선택해주세요.");
       return;
     }
+
     router.push({
       pathname: '/img',
-      query: { 
-        platform: platformName,
-        paragraphCount: count,
-        tts: selectedTTS
+      query: {
+        ...router.query,  // 기존 query 파라미터 유지
+        tts: selectedTTS  // tts 값만 추가
       }
     });
   };
 
+
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - TTS 선택" />
-      
+
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={2}
@@ -57,7 +66,7 @@ export default function TTS() {
             <ChatMessage
               message="영상에서 재생할 목소리를 선택해주세요."
               showNavigationButtons
-              onPrevClick={() => router.back()}
+              onPrevClick={handleBack}
             />
           </div>
 
@@ -81,7 +90,7 @@ export default function TTS() {
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
             direction="prev"
-            onClick={() => router.back()}
+            onClick={handleBack}
             textType="long"
           />
           <NavigationButton
