@@ -6,7 +6,7 @@ import VideoButton from "@/components/common/VideoButton";
 
 export default function Complete() {
   const router = useRouter();
-  const { platform, paragraphCount, tts } = router.query;
+  const { platform, paragraphCount } = router.query;
   const platformName = typeof platform === 'string' ? platform : '';
   const count = typeof paragraphCount === 'string' ? parseInt(paragraphCount, 10) : 0;
 
@@ -34,7 +34,7 @@ export default function Complete() {
       <div className="relative max-w-[600px] mx-auto px-2">
         <div className="mt-8 mb-32">
           <div className="text-center mb-12">
-            <h2 className="text-xl font-bold mb-2">SNAPSUM과 함께</h2>
+            <h2 className="text-xl font-bold ">SNAPSUM과 함께</h2>
             <h2 className="text-xl font-bold mb-4">영상 제작 완료!</h2>
             <p className="text-gray-600 text-sm">
               이제 다운로드 버튼을 눌러 영상을 다운받으세요.
