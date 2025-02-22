@@ -1,20 +1,26 @@
-import { useRouter } from 'next/router';
-import { IoInformationCircle } from 'react-icons/io5';
-import { HiArrowCircleRight } from 'react-icons/hi';
 import { useState } from 'react';
+import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
 import { INITIAL_TEXT } from '@/constants/text';
+import { HiArrowCircleRight } from 'react-icons/hi';
+import { IoInformationCircle } from 'react-icons/io5';
 
 export default function Text() {
-  const router = useRouter();
-  const { platform } = router.query;
-  const platformName = typeof platform === 'string' ? platform : '';
-
+  const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
   const [paragraphs, setParagraphs] = useState([INITIAL_TEXT]);
+
+  if (isLoading || !routeState) {
+    return null;
+  }
+
+  const handleNext = () => {
+    updateState({ paragraphCount: paragraphs.length });
+    navigateTo('tts');
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -58,7 +64,13 @@ export default function Text() {
         setParagraphs(newParagraphs);
       }
     }
-};
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
+    const newParagraphs = [...paragraphs];
+    newParagraphs[index] = e.target.value;
+    setParagraphs(newParagraphs);
+  };
 
   return (
     <Layout showInfo={false}>
@@ -66,8 +78,8 @@ export default function Text() {
 
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
-          currentStep={1}
-          platform={platformName}
+          currentStep={routeState.currentStep}
+          platform={routeState.platform}
           paragraphCount={paragraphs.length}
         />
       </div>
@@ -78,7 +90,7 @@ export default function Text() {
             <ChatMessage
               message="안녕하세요, 저는 당신의 소중한 영상 제작을 AI로 도울 SNAPSUM 입니다. 블로그는 링크에 있는 글을 자동 정리 부탁드려요."
               showNavigationButtons
-              onPrevClick={() => router.back()}
+              onPrevClick={goBack}
             />
           </div>
 
@@ -100,7 +112,7 @@ export default function Text() {
                   </div>
                   <textarea
                     value={text}
-                    readOnly
+                    onChange={(e) => handleTextChange(e, index)}
                     onKeyDown={(e) => handleKeyDown(e, index)}
                     className="w-full min-h-[80px] p-2 resize-none focus:outline-none"
                     placeholder="텍스트를 입력하세요..."
@@ -119,12 +131,12 @@ export default function Text() {
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
             direction="prev"
-            onClick={() => router.back()}
+            onClick={goBack}
             textType="long"
           />
           <NavigationButton
             direction="next"
-            onClick={() => router.push(`/tts?platform=${platformName}&paragraphCount=${paragraphs.length}`)}
+            onClick={handleNext}
             textType="long"
           />
         </div>

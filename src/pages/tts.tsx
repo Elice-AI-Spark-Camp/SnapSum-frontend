@@ -1,4 +1,5 @@
-import { useRouter } from 'next/router';
+// pages/tts.tsx
+import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
@@ -9,12 +10,8 @@ import { useState } from 'react';
 import { useToastStore } from '@/store/useToastStore';
 
 export default function TTS() {
-  const router = useRouter();
-  const { platform, paragraphCount } = router.query;
-  const platformName = typeof platform === 'string' ? platform : '';
-  const count = typeof paragraphCount === 'string' ? parseInt(paragraphCount, 10) : 0;
+  const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
   const { showToast } = useToastStore();
-
   const [selectedTTS, setSelectedTTS] = useState<string>('');
 
   const ttsOptions = [
@@ -24,13 +21,9 @@ export default function TTS() {
     { id: 'male_b', label: '남성 B', sublabel: '목소리에 대한\n간단한 설명' }
   ];
 
-  // TTS.tsx
-  const handleBack = () => {
-    router.push({
-      pathname: '/text',
-      query: router.query  // 현재의 모든 query 파라미터를 그대로 전달
-    });
-  };
+  if (isLoading || !routeState) {
+    return null; // or loading spinner
+  }
 
   const handleNext = () => {
     if (!selectedTTS) {
@@ -38,15 +31,9 @@ export default function TTS() {
       return;
     }
 
-    router.push({
-      pathname: '/img',
-      query: {
-        ...router.query,  // 기존 query 파라미터 유지
-        tts: selectedTTS  // tts 값만 추가
-      }
-    });
+    updateState({ tts: selectedTTS });
+    navigateTo('img');
   };
-
 
   return (
     <Layout showInfo={false}>
@@ -54,9 +41,9 @@ export default function TTS() {
 
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
-          currentStep={2}
-          platform={platformName}
-          paragraphCount={count}
+          currentStep={routeState.currentStep}
+          platform={routeState.platform}
+          paragraphCount={routeState.paragraphCount}
         />
       </div>
 
@@ -66,7 +53,7 @@ export default function TTS() {
             <ChatMessage
               message="영상에서 재생할 목소리를 선택해주세요."
               showNavigationButtons
-              onPrevClick={handleBack}
+              onPrevClick={goBack}
             />
           </div>
 
@@ -90,7 +77,7 @@ export default function TTS() {
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
             direction="prev"
-            onClick={handleBack}
+            onClick={goBack}
             textType="long"
           />
           <NavigationButton
