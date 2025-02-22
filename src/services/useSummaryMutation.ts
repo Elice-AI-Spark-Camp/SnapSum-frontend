@@ -1,8 +1,8 @@
-// hooks/useSummaryMutation.ts
+// services/useSummaryMutation.ts
 import { useMutation } from '@tanstack/react-query';
 import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
-import { createSummary } from '@/services/api';
+import { createSummary } from '@/api/api';
 
 export const useSummaryMutation = () => {
   const router = useRouter();

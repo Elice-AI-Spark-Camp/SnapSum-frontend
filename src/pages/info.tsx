@@ -4,10 +4,9 @@ import Input from '@/components/common/Input';
 import PlatformButton from '@/components/common/PlatformButton';
 import { HiPlay } from 'react-icons/hi';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
 import CustomHead from "@/components/common/CustomHead";
-import { useSummaryMutation } from '@/hooks/useSummaryMutation';
+import { useSummaryMutation } from '@/services/useSummaryMutation';
 
 export default function Info() {
   const [inputLink, setInputLink] = useState('');

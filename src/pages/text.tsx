@@ -8,21 +8,23 @@ import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
 import { INITIAL_TEXT } from '@/constants/text';
+
 export default function Text() {
   const router = useRouter();
   const { platform } = router.query;
   const platformName = typeof platform === 'string' ? platform : '';
 
   const [paragraphs, setParagraphs] = useState([INITIAL_TEXT]);
-  
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
-    // 모바일에서도 작동하도록 수정
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
+    // 화살표 키는 그대로 동작하도록
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
       return;
     }
 
+    // Enter와 Backspace가 아닌 다른 키는 막음 (모바일 예외)
     if (e.key !== 'Enter' && e.key !== 'Backspace') {
       if (!isMobile) {
         e.preventDefault();
@@ -40,41 +42,28 @@ export default function Text() {
       const firstHalf = currentText.slice(0, cursorPosition);
       const secondHalf = currentText.slice(cursorPosition);
 
-      console.log('Split text:', {
-        original: currentText,
-        firstPart: `${firstHalf}<br/>`,
-        secondPart: secondHalf,
-        position: cursorPosition
-      });
-
       const newParagraphs = [...paragraphs];
       newParagraphs.splice(index, 1, firstHalf, secondHalf);
       setParagraphs(newParagraphs);
-    } else if (e.key === 'Backspace' && index > 0 && paragraphs[index].length === 0) {
-      e.preventDefault();
-      const newParagraphs = [...paragraphs];
-      const mergedText = newParagraphs[index - 1] + newParagraphs[index];
-
-      console.log('Merged text:', {
-        previous: `${newParagraphs[index - 1]}<br/>`,
-        current: newParagraphs[index],
-        result: mergedText
-      });
-
-      newParagraphs[index - 1] = mergedText;
-      newParagraphs.splice(index, 1);
-      setParagraphs(newParagraphs);
+    } else if (e.key === 'Backspace' && index > 0) {
+      const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
+      
+      // 커서가 문단의 시작 부분에 있을 때만 실행
+      if (cursorPosition === 0) {
+        e.preventDefault();
+        const newParagraphs = [...paragraphs];
+        const mergedText = newParagraphs[index - 1] + newParagraphs[index];
+        newParagraphs[index - 1] = mergedText;
+        newParagraphs.splice(index, 1);
+        setParagraphs(newParagraphs);
+      }
     }
-  };
-
-
-
+};
 
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - 영상 제작" />
 
-      {/* Header와 Progress Bar 영역 */}
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={1}
@@ -83,14 +72,13 @@ export default function Text() {
         />
       </div>
 
-      {/* 컨텐츠 영역 */}
-      <div className="relative max-w-[600px] mx-auto px-2 ">
+      <div className="relative max-w-[600px] mx-auto px-2">
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
               message="안녕하세요, 저는 당신의 소중한 영상 제작을 AI로 도울 SNAPSUM 입니다. 블로그는 링크에 있는 글을 자동 정리 부탁드려요."
               showNavigationButtons
-              onPrevClick={() => router.back()}         
+              onPrevClick={() => router.back()}
             />
           </div>
 
@@ -99,7 +87,7 @@ export default function Text() {
             <span className="text-sm text-start">
               Enter키를 누르면 문단이 분리됩니다.
               <br />
-              Backspace를 누르면 문단이 하나로 합쳐집니다.
+              Backspace를 누르면 문단이 하나로 합쳐지고, 이전 문단으로 이동합니다.
             </span>
           </div>
 
@@ -127,7 +115,6 @@ export default function Text() {
         </div>
       </div>
 
-      {/* 하단 네비게이션 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white py-6">
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
