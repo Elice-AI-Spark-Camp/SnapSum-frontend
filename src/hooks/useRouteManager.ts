@@ -18,6 +18,12 @@ export const ROUTE_STEPS = {
   complete: 5,
 } as const;
 
+const DEFAULT_STATE: RouteState = {
+  platform: '',
+  paragraphCount: 0,
+  currentStep: 0
+};
+
 export const useRouteManager = () => {
   const router = useRouter();
   const [routeState, setRouteState] = useState<RouteState | null>(null);
@@ -27,43 +33,33 @@ export const useRouteManager = () => {
     const savedState = localStorage.getItem('routeState');
     if (savedState) {
       setRouteState(JSON.parse(savedState));
+    } else {
+      setRouteState(DEFAULT_STATE);
     }
   }, []);
 
-  // 라우터 쿼리로부터 상태 업데이트
+  // 현재 경로에 따른 단계 업데이트
   useEffect(() => {
-    if (router.isReady) {
-      const { platform, paragraphCount, tts } = router.query;
-      const currentPath = router.pathname.split('/')[1];
+    if (!router.isReady) return;
+
+    const currentPath = router.pathname.split('/')[1];
+    
+    if (!currentPath || currentPath === '') {
+      return;
+    }
+
+    setRouteState(prev => {
+      if (!prev) return DEFAULT_STATE;
       
-      const newState: RouteState = {
-        platform: platform as string || '',
-        paragraphCount: parseInt(paragraphCount as string, 10) || 0,
-        tts: tts as string,
+      return {
+        ...prev,
         currentStep: ROUTE_STEPS[currentPath as keyof typeof ROUTE_STEPS] || 0
       };
-
-      setRouteState(newState);
-      localStorage.setItem('routeState', JSON.stringify(newState));
-    }
-  }, [router.isReady, router.query, router.pathname]);
+    });
+  }, [router.isReady, router.pathname]);
 
   const navigateTo = (path: keyof typeof ROUTE_STEPS) => {
-    if (!routeState) return;
-
-    const query: Record<string, string> = {
-      platform: routeState.platform,
-      paragraphCount: routeState.paragraphCount.toString()
-    };
-
-    if (routeState.tts) {
-      query.tts = routeState.tts;
-    }
-
-    router.push({
-      pathname: `/${path}`,
-      query
-    });
+    router.push(`/${path}`);
   };
 
   const goBack = () => {
@@ -88,7 +84,7 @@ export const useRouteManager = () => {
 
   const clearState = () => {
     localStorage.removeItem('routeState');
-    setRouteState(null);
+    setRouteState(DEFAULT_STATE);
   };
 
   return {
