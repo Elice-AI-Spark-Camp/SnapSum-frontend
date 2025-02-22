@@ -7,13 +7,14 @@ import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
 import CustomHead from "@/components/common/CustomHead";
+import { useSummaryMutation } from '@/hooks/useSummaryMutation';
 
 export default function Info() {
   const [inputLink, setInputLink] = useState('');
   const [isError, setIsError] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const { showToast } = useToastStore();
-  const router = useRouter(); 
+  const { createSummaryMutation } = useSummaryMutation();
 
   const validateLink = (link: string) => {
     const isValidLink = link.includes('blog.naver.com') || link.includes('tistory.com');
@@ -56,16 +57,12 @@ export default function Info() {
     // 모든 유효성 검사를 통과한 경우
     const isValidLink = inputLink.includes('blog.naver.com') || inputLink.includes('tistory.com');
     if (isValidLink) {
-      router.push({
-        pathname: '/text',
-        query: { 
-          link: inputLink,
-          platform: selectedPlatform 
-        }
+      createSummaryMutation.mutate({
+        url: inputLink,
+        platform: selectedPlatform
       });
     }
   };
-
   const helperTextWithBold = (
     <span className="text-xs">
       현재 SNAPSUM은 <strong>네이버 블로그</strong>, <strong>티스토리</strong> 링크만 이용 가능합니다.
@@ -83,14 +80,14 @@ export default function Info() {
             SNAPSUM에 불여넣기만 하면 시작입니다.
           </h1>
 
-          <Input 
-            value={inputLink} 
-            onChange={handleLinkChange} 
-            onFocus={handleInputFocus} 
-            onBlur={handleInputBlur} 
-            placeholder="링크를 입력해주세요" 
-            isError={isError} 
-            helperText={helperTextWithBold} 
+          <Input
+            value={inputLink}
+            onChange={handleLinkChange}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            placeholder="링크를 입력해주세요"
+            isError={isError}
+            helperText={helperTextWithBold}
           />
 
           <div className="flex gap-4 justify-center w-full">
@@ -117,7 +114,7 @@ export default function Info() {
             </PlatformButton>
           </div>
 
-          <button 
+          <button
             className="
               flex items-center gap-2 
               text-primary
