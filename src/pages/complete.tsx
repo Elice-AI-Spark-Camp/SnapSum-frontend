@@ -1,14 +1,16 @@
-import { useRouter } from 'next/router';
+// pages/complete.tsx
+import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import CustomHead from "@/components/common/CustomHead";
 import VideoButton from "@/components/common/VideoButton";
 
 export default function Complete() {
-  const router = useRouter();
-  const { platform, paragraphCount } = router.query;
-  const platformName = typeof platform === 'string' ? platform : '';
-  const count = typeof paragraphCount === 'string' ? parseInt(paragraphCount, 10) : 0;
+  const { routeState, navigateTo, clearState, isLoading } = useRouteManager();
+
+  if (isLoading || !routeState) {
+    return null;
+  }
 
   const handleDownload = () => {
     // TODO: 다운로드 로직
@@ -16,7 +18,8 @@ export default function Complete() {
   };
 
   const handleNewVideo = () => {
-    router.push('/info');
+    clearState();
+    navigateTo('info');
   };
 
   return (
@@ -25,9 +28,9 @@ export default function Complete() {
       
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
-          currentStep={5}
-          platform={platformName}
-          paragraphCount={count}
+          currentStep={routeState.currentStep}
+          platform={routeState.platform}
+          paragraphCount={routeState.paragraphCount}
         />
       </div>
 

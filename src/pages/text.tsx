@@ -1,96 +1,78 @@
-import { useRouter } from 'next/router';
-import { IoInformationCircle } from 'react-icons/io5';
-import { HiArrowCircleRight } from 'react-icons/hi';
-import { useState } from 'react';
+// pages/text.tsx
+import { useState, useEffect } from 'react';
+import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
-import { INITIAL_TEXT } from '@/constants/text';
+import { IoInformationCircle } from 'react-icons/io5';
+import { useSummaryState } from '@/services/useSummaryState';
+import { useSummaryMutation } from '@/services/useSummaryMutation';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { TextEditor } from '@/components/pages/text/TextEditor';
+
 export default function Text() {
-  const router = useRouter();
-  const { platform } = router.query;
-  const platformName = typeof platform === 'string' ? platform : '';
+  const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
+  const { summaryState } = useSummaryState();
+  const { updateSummaryMutation } = useSummaryMutation();
+  const [paragraphs, setParagraphs] = useState<string[]>([]);
 
-  const [paragraphs, setParagraphs] = useState([INITIAL_TEXT]);
-  
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
-    // 모바일에서도 작동하도록 수정
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-      return;
+  useEffect(() => {
+    if (summaryState?.paragraphs) {
+      setParagraphs(summaryState.paragraphs);
     }
+  }, [summaryState]);
 
-    if (e.key !== 'Enter' && e.key !== 'Backspace') {
-      if (!isMobile) {
-        e.preventDefault();
-      }
-      return;
-    }
+  if (isLoading || !routeState || !summaryState?.paragraphs) {
+    return (
+      <Layout showInfo={false}>
+        <CustomHead title="SNAPSUM - 영상 제작" />
+        <LoadingSpinner message="텍스트를 요약중입니다" />
+      </Layout>
+    );
+  }
 
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      const currentText = paragraphs[index];
-      const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
-
-      if (cursorPosition === 0 || cursorPosition === currentText.length) return;
-
-      const firstHalf = currentText.slice(0, cursorPosition);
-      const secondHalf = currentText.slice(cursorPosition);
-
-      console.log('Split text:', {
-        original: currentText,
-        firstPart: `${firstHalf}<br/>`,
-        secondPart: secondHalf,
-        position: cursorPosition
+  const handleTextChange = (newParagraphs: string[]) => {
+    setParagraphs(newParagraphs);
+    
+    // 디바운스 처리를 위한 타이머
+    const timeoutId = setTimeout(() => {
+      if (!summaryState?.summaryId) return;
+      
+      updateSummaryMutation.mutate({
+        summary_id: summaryState.summaryId,
+        summary_text: newParagraphs.join('<br>')
       });
+    }, 1000);
 
-      const newParagraphs = [...paragraphs];
-      newParagraphs.splice(index, 1, firstHalf, secondHalf);
-      setParagraphs(newParagraphs);
-    } else if (e.key === 'Backspace' && index > 0 && paragraphs[index].length === 0) {
-      e.preventDefault();
-      const newParagraphs = [...paragraphs];
-      const mergedText = newParagraphs[index - 1] + newParagraphs[index];
-
-      console.log('Merged text:', {
-        previous: `${newParagraphs[index - 1]}<br/>`,
-        current: newParagraphs[index],
-        result: mergedText
-      });
-
-      newParagraphs[index - 1] = mergedText;
-      newParagraphs.splice(index, 1);
-      setParagraphs(newParagraphs);
-    }
+    return () => clearTimeout(timeoutId);
   };
 
-
-
+  const handleNext = () => {
+    updateState({ paragraphCount: paragraphs.length });
+    navigateTo('tts');
+  };
 
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - 영상 제작" />
 
-      {/* Header와 Progress Bar 영역 */}
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
-          currentStep={1}
-          platform={platformName}
+          currentStep={routeState.currentStep}
+          platform={routeState.platform}
           paragraphCount={paragraphs.length}
         />
       </div>
 
-      {/* 컨텐츠 영역 */}
-      <div className="relative max-w-[600px] mx-auto px-2 ">
+      <div className="relative max-w-[600px] mx-auto px-2">
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
               message="안녕하세요, 저는 당신의 소중한 영상 제작을 AI로 도울 SNAPSUM 입니다. 블로그는 링크에 있는 글을 자동 정리 부탁드려요."
               showNavigationButtons
-              onPrevClick={() => router.back()}         
+              onPrevClick={goBack}
             />
           </div>
 
@@ -99,45 +81,27 @@ export default function Text() {
             <span className="text-sm text-start">
               Enter키를 누르면 문단이 분리됩니다.
               <br />
-              Backspace를 누르면 문단이 하나로 합쳐집니다.
+              Backspace를 누르면 문단이 하나로 합쳐지고, 이전 문단으로 이동합니다.
             </span>
           </div>
 
-          <div className="space-y-4 overflow-hidden">
-            {paragraphs.map((text, index) => (
-              <div key={index} className="relative group">
-                <div className="relative flex items-start gap-2">
-                  <div className="pt-4">
-                    <HiArrowCircleRight className="text-primary text-xl" />
-                  </div>
-                  <textarea
-                    value={text}
-                    readOnly
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="w-full min-h-[80px] p-2 resize-none focus:outline-none"
-                    placeholder="텍스트를 입력하세요..."
-                  />
-                </div>
-                {index < paragraphs.length - 1 && (
-                  <div className="w-full h-[2px] bg-gray-default my-1" />
-                )}
-              </div>
-            ))}
-          </div>
+          <TextEditor
+            paragraphs={paragraphs}
+            onChange={handleTextChange}
+          />
         </div>
       </div>
 
-      {/* 하단 네비게이션 */}
       <div className="fixed bottom-0 left-0 right-0 bg-white py-6">
         <div className="max-w-[600px] mx-auto px-6 flex justify-between">
           <NavigationButton
             direction="prev"
-            onClick={() => router.back()}
+            onClick={goBack}
             textType="long"
           />
           <NavigationButton
             direction="next"
-            onClick={() => router.push(`/tts?platform=${platformName}&paragraphCount=${paragraphs.length}`)}
+            onClick={handleNext}
             textType="long"
           />
         </div>
