@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useState ,useEffect } from 'react';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
-import { INITIAL_TEXT } from '@/constants/text';
 import { HiArrowCircleRight } from 'react-icons/hi';
 import { IoInformationCircle } from 'react-icons/io5';
+import { useSummaryState } from '@/services/useSummaryState';
 
 export default function Text() {
   const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
-  const [paragraphs, setParagraphs] = useState([INITIAL_TEXT]);
+  const { summaryState } = useSummaryState();
+  const [paragraphs, setParagraphs] = useState<string[]>([]);
+
+  // summaryState에서 paragraphs 로드
+  useEffect(() => {
+    if (summaryState?.paragraphs) {
+      setParagraphs(summaryState.paragraphs);
+    }
+  }, [summaryState]);
 
   if (isLoading || !routeState) {
     return null;
