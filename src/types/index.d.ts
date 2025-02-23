@@ -5,3 +5,9 @@ interface CreateState {
   text: string[];
   selectedImages: string[];
 }
+interface SummaryState {
+  platform: string;
+  summaryId: number;
+  summaryText: string;
+  paragraphs?: string[];
+}
