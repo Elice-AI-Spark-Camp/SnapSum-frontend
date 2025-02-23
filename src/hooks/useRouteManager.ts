@@ -67,7 +67,7 @@ export const useRouteManager = () => {
     
     const currentStep = routeState.currentStep;
     const paths = Object.entries(ROUTE_STEPS);
-    const previousPath = paths.find(([_, step]) => step === currentStep - 1)?.[0];
+    const previousPath = paths.find(([, step]) => step === currentStep - 1)?.[0];
     
     if (previousPath) {
       navigateTo(previousPath as keyof typeof ROUTE_STEPS);

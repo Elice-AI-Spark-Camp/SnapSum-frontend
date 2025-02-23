@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 // pages/img.tsx
 import { useEffect, useState } from 'react';
 import { useRouteManager } from '@/hooks/useRouteManager';
