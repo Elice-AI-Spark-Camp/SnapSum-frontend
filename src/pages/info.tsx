@@ -1,9 +1,9 @@
-// pages/info.tsx
 import { useEffect, useState } from 'react';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import Input from '@/components/common/Input';
 import PlatformButton from '@/components/common/PlatformButton';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { HiPlay } from 'react-icons/hi';
 import Image from 'next/image';
 import { useToastStore } from '@/store/useToastStore';
@@ -71,7 +71,6 @@ export default function Info() {
     validateLink(inputLink);
   };
 
-
   const helperTextWithBold = (
     <span className="text-xs">
       현재 SNAPSUM은 <strong>네이버 블로그</strong>, <strong>티스토리</strong> 링크만 이용 가능합니다.
@@ -81,6 +80,9 @@ export default function Info() {
   return (
     <Layout>
       <CustomHead title="SNAPSUM - 링크 선택" />
+      {createSummaryMutation.isPending && (
+        <LoadingSpinner message="텍스트를 추출하고 요약합니다." />
+      )}
       <div className="min-h-[calc(90vh-96px)] flex items-center justify-center">
         <div className="w-[335px] flex flex-col items-center gap-8">
           <h1 className="text-lg font-bold text-center">

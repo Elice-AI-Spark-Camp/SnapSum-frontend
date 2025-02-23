@@ -9,7 +9,11 @@ export const useSummaryMutation = () => {
   const { showToast } = useToastStore();
   const { updateSummaryState } = useSummaryState();
 
-  const createSummaryMutation = useMutation({
+  const createSummaryMutation = useMutation<
+    CreateSummaryResponse,
+    Error,
+    CreateSummaryRequest
+  >({
     mutationKey: ['createSummary'],
     mutationFn: summaryAPI.create,
     onSuccess: (data) => {
@@ -34,7 +38,11 @@ export const useSummaryMutation = () => {
     }
   });
 
-  const updateSummaryMutation = useMutation({
+  const updateSummaryMutation = useMutation<
+    UpdateSummaryResponse,
+    Error,
+    UpdateSummaryRequest
+  >({
     mutationKey: ['updateSummary'],
     mutationFn: summaryAPI.update,
     onSuccess: (data) => {
