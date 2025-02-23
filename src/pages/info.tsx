@@ -1,19 +1,27 @@
+import { useEffect, useState } from 'react';
+import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
-import { useState } from 'react';
 import Input from '@/components/common/Input';
 import PlatformButton from '@/components/common/PlatformButton';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { HiPlay } from 'react-icons/hi';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
 import { useToastStore } from '@/store/useToastStore';
 import CustomHead from "@/components/common/CustomHead";
+import { useSummaryMutation } from '@/services/useSummaryMutation';
 
 export default function Info() {
+  const { navigateTo, updateState, clearState } = useRouteManager();
   const [inputLink, setInputLink] = useState('');
   const [isError, setIsError] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const { showToast } = useToastStore();
-  const router = useRouter(); 
+  const { createSummaryMutation } = useSummaryMutation();
+
+  // 새 영상 시작시 이전 상태 초기화
+  useEffect(() => {
+    clearState();
+  }, []);
 
   const validateLink = (link: string) => {
     const isValidLink = link.includes('blog.naver.com') || link.includes('tistory.com');
@@ -22,6 +30,29 @@ export default function Info() {
       showToast("유효한 링크를 입력해주세요.");
     } else {
       setIsError(false);
+    }
+  };
+
+  const handleSubmit = () => {
+    if (isError || !inputLink) {
+      showToast("유효하지 않은 링크입니다. 다시 입력해주세요.");
+      return;
+    }
+
+    if (!selectedPlatform) {
+      showToast("플랫폼을 선택해주세요.");
+      return;
+    }
+
+    const isValidLink = inputLink.includes('blog.naver.com') || inputLink.includes('tistory.com');
+    if (isValidLink) {
+      updateState({ platform: selectedPlatform });
+      createSummaryMutation.mutate({
+        url: inputLink,
+        platform: selectedPlatform
+      }, {
+        onSuccess: () => navigateTo('text')
+      });
     }
   };
 
@@ -40,32 +71,6 @@ export default function Info() {
     validateLink(inputLink);
   };
 
-  const handleSubmit = () => {
-    // 링크가 없거나 에러인 경우
-    if (isError || !inputLink) {
-      showToast("유효하지 않은 링크입니다. 다시 입력해주세요.");
-      return;
-    }
-
-    // 플랫폼이 선택되지 않은 경우
-    if (!selectedPlatform) {
-      showToast("플랫폼을 선택해주세요.");
-      return;
-    }
-
-    // 모든 유효성 검사를 통과한 경우
-    const isValidLink = inputLink.includes('blog.naver.com') || inputLink.includes('tistory.com');
-    if (isValidLink) {
-      router.push({
-        pathname: '/text',
-        query: { 
-          link: inputLink,
-          platform: selectedPlatform 
-        }
-      });
-    }
-  };
-
   const helperTextWithBold = (
     <span className="text-xs">
       현재 SNAPSUM은 <strong>네이버 블로그</strong>, <strong>티스토리</strong> 링크만 이용 가능합니다.
@@ -75,6 +80,9 @@ export default function Info() {
   return (
     <Layout>
       <CustomHead title="SNAPSUM - 링크 선택" />
+      {createSummaryMutation.isPending && (
+        <LoadingSpinner message="텍스트를 추출하고 요약합니다." />
+      )}
       <div className="min-h-[calc(90vh-96px)] flex items-center justify-center">
         <div className="w-[335px] flex flex-col items-center gap-8">
           <h1 className="text-lg font-bold text-center">
@@ -83,14 +91,14 @@ export default function Info() {
             SNAPSUM에 불여넣기만 하면 시작입니다.
           </h1>
 
-          <Input 
-            value={inputLink} 
-            onChange={handleLinkChange} 
-            onFocus={handleInputFocus} 
-            onBlur={handleInputBlur} 
-            placeholder="링크를 입력해주세요" 
-            isError={isError} 
-            helperText={helperTextWithBold} 
+          <Input
+            value={inputLink}
+            onChange={handleLinkChange}
+            onFocus={handleInputFocus}
+            onBlur={handleInputBlur}
+            placeholder="링크를 입력해주세요"
+            isError={isError}
+            helperText={helperTextWithBold}
           />
 
           <div className="flex gap-4 justify-center w-full">
@@ -117,7 +125,7 @@ export default function Info() {
             </PlatformButton>
           </div>
 
-          <button 
+          <button
             className="
               flex items-center gap-2 
               text-primary
