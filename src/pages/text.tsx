@@ -1,83 +1,57 @@
-import { useState ,useEffect } from 'react';
+// pages/text.tsx
+import { useState, useEffect } from 'react';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
-import { HiArrowCircleRight } from 'react-icons/hi';
 import { IoInformationCircle } from 'react-icons/io5';
 import { useSummaryState } from '@/services/useSummaryState';
+import { useSummaryMutation } from '@/services/useSummaryMutation';
+import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { TextEditor } from '@/components/pages/text/TextEditor';
 
 export default function Text() {
   const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
   const { summaryState } = useSummaryState();
+  const { updateSummaryMutation } = useSummaryMutation();
   const [paragraphs, setParagraphs] = useState<string[]>([]);
 
-  // summaryState에서 paragraphs 로드
   useEffect(() => {
     if (summaryState?.paragraphs) {
       setParagraphs(summaryState.paragraphs);
     }
   }, [summaryState]);
 
-  if (isLoading || !routeState) {
-    return null;
+  if (isLoading || !routeState || !summaryState?.paragraphs) {
+    return (
+      <Layout showInfo={false}>
+        <CustomHead title="SNAPSUM - 영상 제작" />
+        <LoadingSpinner message="텍스트를 요약중입니다" />
+      </Layout>
+    );
   }
+
+  const handleTextChange = (newParagraphs: string[]) => {
+    setParagraphs(newParagraphs);
+    
+    // 디바운스 처리를 위한 타이머
+    const timeoutId = setTimeout(() => {
+      if (!summaryState?.summaryId) return;
+      
+      updateSummaryMutation.mutate({
+        summary_id: summaryState.summaryId,
+        summary_text: newParagraphs.join('<br>')
+      });
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  };
 
   const handleNext = () => {
     updateState({ paragraphCount: paragraphs.length });
     navigateTo('tts');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    // 화살표 키는 그대로 동작하도록
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-      return;
-    }
-
-    // Enter와 Backspace가 아닌 다른 키는 막음 (모바일 예외)
-    if (e.key !== 'Enter' && e.key !== 'Backspace') {
-      if (!isMobile) {
-        e.preventDefault();
-      }
-      return;
-    }
-
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      const currentText = paragraphs[index];
-      const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
-
-      if (cursorPosition === 0 || cursorPosition === currentText.length) return;
-
-      const firstHalf = currentText.slice(0, cursorPosition);
-      const secondHalf = currentText.slice(cursorPosition);
-
-      const newParagraphs = [...paragraphs];
-      newParagraphs.splice(index, 1, firstHalf, secondHalf);
-      setParagraphs(newParagraphs);
-    } else if (e.key === 'Backspace' && index > 0) {
-      const cursorPosition = (e.target as HTMLTextAreaElement).selectionStart;
-      
-      // 커서가 문단의 시작 부분에 있을 때만 실행
-      if (cursorPosition === 0) {
-        e.preventDefault();
-        const newParagraphs = [...paragraphs];
-        const mergedText = newParagraphs[index - 1] + newParagraphs[index];
-        newParagraphs[index - 1] = mergedText;
-        newParagraphs.splice(index, 1);
-        setParagraphs(newParagraphs);
-      }
-    }
-  };
-
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
-    const newParagraphs = [...paragraphs];
-    newParagraphs[index] = e.target.value;
-    setParagraphs(newParagraphs);
   };
 
   return (
@@ -111,27 +85,10 @@ export default function Text() {
             </span>
           </div>
 
-          <div className="space-y-4 overflow-hidden">
-            {paragraphs.map((text, index) => (
-              <div key={index} className="relative group">
-                <div className="relative flex items-start gap-2">
-                  <div className="pt-4">
-                    <HiArrowCircleRight className="text-primary text-xl" />
-                  </div>
-                  <textarea
-                    value={text}
-                    onChange={(e) => handleTextChange(e, index)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="w-full min-h-[80px] p-2 resize-none focus:outline-none"
-                    placeholder="텍스트를 입력하세요..."
-                  />
-                </div>
-                {index < paragraphs.length - 1 && (
-                  <div className="w-full h-[2px] bg-gray-default my-1" />
-                )}
-              </div>
-            ))}
-          </div>
+          <TextEditor
+            paragraphs={paragraphs}
+            onChange={handleTextChange}
+          />
         </div>
       </div>
 

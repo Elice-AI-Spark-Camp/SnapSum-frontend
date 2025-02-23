@@ -1,17 +1,18 @@
 import { useMutation } from '@tanstack/react-query';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import { useToastStore } from '@/store/useToastStore';
-import { createSummary } from '@/api/api';
+import { summaryAPI } from '@/api/SummaryApi';
+import { useSummaryState } from './useSummaryState';
 
 export const useSummaryMutation = () => {
   const { navigateTo, updateState } = useRouteManager();
   const { showToast } = useToastStore();
+  const { updateSummaryState } = useSummaryState();
 
   const createSummaryMutation = useMutation({
     mutationKey: ['createSummary'],
-    mutationFn: createSummary,
+    mutationFn: summaryAPI.create,
     onSuccess: (data) => {
-      // 응답 데이터를 localStorage에 저장
       const summaryState: SummaryState = {
         platform: data.platform,
         summaryId: data.summary_id,
@@ -20,13 +21,11 @@ export const useSummaryMutation = () => {
       };
       localStorage.setItem('summaryState', JSON.stringify(summaryState));
 
-      // RouteState 업데이트
       updateState({
         platform: data.platform,
         paragraphCount: data.paragraphs.length
       });
 
-      // 다음 페이지로 이동
       navigateTo('text');
     },
     onError: (error: Error) => {
@@ -35,7 +34,24 @@ export const useSummaryMutation = () => {
     }
   });
 
+  const updateSummaryMutation = useMutation({
+    mutationKey: ['updateSummary'],
+    mutationFn: summaryAPI.update,
+    onSuccess: (data) => {
+      updateSummaryState({
+        paragraphs: data.paragraphs,
+        summaryText: data.summaryText,
+        style: data.style
+      });
+    },
+    onError: (error: Error) => {
+      console.error('Error updating summary:', error);
+      showToast(error.message || "변경사항 저장 중 오류가 발생했습니다.");
+    }
+  });
+
   return {
-    createSummaryMutation
+    createSummaryMutation,
+    updateSummaryMutation
   };
 };
