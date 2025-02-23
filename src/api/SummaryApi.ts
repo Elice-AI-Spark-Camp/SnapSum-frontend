@@ -1,12 +1,4 @@
-//api/SummaryApi.ts
-import axios from 'axios';
-
-const api = axios.create({
-  baseURL: 'https://ccqapyxttsnqmhxx.tunnel-pt.elice.io',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+import { api } from '@/lib/api';
 
 export const summaryAPI = {
   create: async (data: CreateSummaryRequest): Promise<CreateSummaryResponse> => {

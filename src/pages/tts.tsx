@@ -1,4 +1,5 @@
 // pages/tts.tsx
+import { useState, useEffect } from 'react';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
@@ -6,23 +7,32 @@ import ChatMessage from "@/components/common/ChatMessage";
 import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
 import TTSButton from "@/components/common/TTSButton";
-import { useState } from 'react';
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import { useToastStore } from '@/store/useToastStore';
+import { useTTSMutation } from '@/services/useTTSMutation';
 
 export default function TTS() {
-  const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
+  const { routeState, goBack, isLoading } = useRouteManager();
   const { showToast } = useToastStore();
   const [selectedTTS, setSelectedTTS] = useState<string>('');
+  const { updateTTSMutation } = useTTSMutation();
+
+  // 이전에 선택한 TTS가 있다면 로드
+  useEffect(() => {
+    if (routeState?.tts) {
+      setSelectedTTS(routeState.tts);
+    }
+  }, [routeState?.tts]);
 
   const ttsOptions = [
-    { id: 'female_a', label: '여성 A', sublabel: '목소리에 대한\n간단한 설명' },
-    { id: 'female_b', label: '여성 B', sublabel: '목소리에 대한\n간단한 설명' },
-    { id: 'male_a', label: '남성 A', sublabel: '목소리에 대한\n간단한 설명' },
-    { id: 'male_b', label: '남성 B', sublabel: '목소리에 대한\n간단한 설명' }
+    { id: 'female_1', label: '여성 1', sublabel: '목소리에 대한\n간단한 설명' },
+    { id: 'female_2', label: '여성 2', sublabel: '목소리에 대한\n간단한 설명' },
+    { id: 'male_1', label: '남성 1', sublabel: '목소리에 대한\n간단한 설명' },
+    { id: 'male_2', label: '남성 2', sublabel: '목소리에 대한\n간단한 설명' }
   ];
 
   if (isLoading || !routeState) {
-    return null; // or loading spinner
+    return null;
   }
 
   const handleNext = () => {
@@ -31,13 +41,25 @@ export default function TTS() {
       return;
     }
 
-    updateState({ tts: selectedTTS });
-    navigateTo('img');
+    const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
+    if (!summaryState.summaryId) {
+      showToast("요약 정보를 찾을 수 없습니다.");
+      return;
+    }
+
+    updateTTSMutation.mutate({
+      summaryId: summaryState.summaryId,
+      voice: selectedTTS
+    });
   };
 
   return (
     <Layout showInfo={false}>
       <CustomHead title="SNAPSUM - TTS 선택" />
+
+      {updateTTSMutation.isPending && (
+        <LoadingSpinner message="음성을 적용하고 있습니다..." />
+      )}
 
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
