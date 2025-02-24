@@ -66,7 +66,8 @@ export const imageAPI = {
     try {
       console.log('Regenerating image:', imageId);
       
-      const response = await api.post(`/images/${imageId}/regenerate`);
+      // PUT 방식으로 변경
+      const response = await api.put(`/images/${imageId}/regenerate`);
       
       console.log('Regenerate response:', response.data);
 

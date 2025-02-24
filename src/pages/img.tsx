@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 // pages/img.tsx
 import { useEffect, useState } from 'react';
+import ImageGrid from '@/components/pages/img/ImageGrid';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import { useImageMutation } from '@/services/useImageMutation';
 import { useToastStore } from '@/store/useToastStore';
@@ -13,7 +12,6 @@ import CustomHead from "@/components/common/CustomHead";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ImageModal from "@/components/pages/img/ImageModal";
 import { ImageData } from '@/api/ImageApi';
-import Image from '@/components/common/Image';
 
 export default function Img() {
   const { routeState, navigateTo, goBack, isLoading } = useRouteManager();
@@ -21,12 +19,27 @@ export default function Img() {
   const { showToast } = useToastStore();
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
   const [images, setImages] = useState<ImageData[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [paragraphTexts, setParagraphTexts] = useState<{ [key: string]: string }>({});
 
-  // pages/img.tsx
   useEffect(() => {
     const loadAndGenerateImages = async () => {
       try {
         const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
+        
+        if (summaryState.paragraphs && Array.isArray(summaryState.paragraphs)) {
+          if (summaryState.images?.length > 0) {
+            const paragraphMap = summaryState.images.reduce(
+              (acc: Record<string, string>, img: ImageData, index: number) => {
+                acc[img.image_id] = summaryState.paragraphs[index] || '';
+                return acc;
+              },
+              {}
+            );
+            
+            setParagraphTexts(paragraphMap);
+          }
+        }
 
         if (summaryState.images?.length > 0) {
           setImages(summaryState.images);
@@ -37,12 +50,10 @@ export default function Img() {
           throw new Error('요약 정보를 찾을 수 없습니다.');
         }
 
-        // style을 'polaroid'로 설정하여 API 요청
         await generateImagesMutation.mutateAsync({
           summary_id: Number(summaryState.summaryId),
-          style: 'polaroid'  // 기본 스타일 설정
+          style: 'polaroid'
         });
-
       } catch (error: any) {
         console.error('Load Images Error:', error);
         showToast(error.message);
@@ -52,13 +63,9 @@ export default function Img() {
     loadAndGenerateImages();
   }, []);
 
-  useEffect(() => {
-    if (generateImagesMutation.data?.images) {
-      setImages(generateImagesMutation.data.images);
-    }
-  }, [generateImagesMutation.data]);
-
   const handleImageClick = (image: ImageData) => {
+    const index = images.findIndex(img => img.image_id === image.image_id);
+    setCurrentImageIndex(index);
     setSelectedImage(image);
   };
 
@@ -71,6 +78,22 @@ export default function Img() {
         setSelectedImage(newImage);
       }
     });
+  };
+
+  const handlePrevImage = () => {
+    if (currentImageIndex > 0) {
+      const prevImage = images[currentImageIndex - 1];
+      setCurrentImageIndex(currentImageIndex - 1);
+      setSelectedImage(prevImage);
+    }
+  };
+
+  const handleNextImage = () => {
+    if (currentImageIndex < images.length - 1) {
+      const nextImage = images[currentImageIndex + 1];
+      setCurrentImageIndex(currentImageIndex + 1);
+      setSelectedImage(nextImage);
+    }
   };
 
   if (isLoading || !routeState) {
@@ -91,6 +114,11 @@ export default function Img() {
           onClose={() => setSelectedImage(null)}
           onRegenerate={handleRegenerate}
           isRegenerating={regenerateImageMutation.isPending}
+          paragraphText={paragraphTexts[selectedImage.image_id]}
+          totalImages={images.length}
+          currentIndex={currentImageIndex}
+          onPrevImage={handlePrevImage}
+          onNextImage={handleNextImage}
         />
       )}
 
@@ -99,6 +127,7 @@ export default function Img() {
           currentStep={routeState.currentStep}
           platform={routeState.platform}
           paragraphCount={routeState.paragraphCount}
+          imageCount={images.length}
         />
       </div>
 
@@ -118,31 +147,17 @@ export default function Img() {
               <span>{images.length}개의 이미지</span>
             </div>
             {images.length > 0 ? (
-              <div className="grid grid-cols-3 gap-2">
-                {images.map((image) => (
-                  <div
-                    key={image.image_id}
-                    className="aspect-[3/4] bg-gray-200 cursor-pointer overflow-hidden rounded"
-                    onClick={() => handleImageClick(image)}
-                  >
-                    <Image
-                      src={image.image_url}
-                      alt="Generated image"
-                      className="w-full h-full"
-                    />
-                  </div>
-                ))}
-              </div>
+              <ImageGrid
+                images={images}
+                onImageClick={handleImageClick}
+                paragraphTexts={paragraphTexts}
+              />
             ) : (
               <div className="text-center text-gray-500 py-8">
                 이미지를 생성하는 중입니다...
               </div>
             )}
           </div>
-
-          <button className="w-full py-3 bg-gray-200 text-gray-600 rounded">
-            스크롤
-          </button>
         </div>
       </div>
 
