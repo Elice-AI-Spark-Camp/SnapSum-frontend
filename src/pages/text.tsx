@@ -11,10 +11,12 @@ import { useSummaryState } from '@/services/useSummaryState';
 import { useSummaryMutation } from '@/services/useSummaryMutation';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
 import { TextEditor } from '@/components/pages/text/TextEditor';
+import { useToastStore } from '@/store/useToastStore';
 
 export default function Text() {
   const { routeState, navigateTo, goBack, updateState, isLoading } = useRouteManager();
   const { summaryState } = useSummaryState();
+  const { showToast } = useToastStore();
   const { updateSummaryMutation } = useSummaryMutation();
   const [paragraphs, setParagraphs] = useState<string[]>([]);
 
@@ -34,6 +36,13 @@ export default function Text() {
   }
 
   const handleTextChange = (newParagraphs: string[]) => {
+    // 문단 수를 30개 이하로 제한
+    if (newParagraphs.length > 30) {
+      newParagraphs = newParagraphs.slice(0, 30);
+      // 예시: 사용자에게 알림 (토스트 메시지)
+      showToast("문단은 최대 30개까지만 입력할 수 있습니다.");
+    }
+    
     setParagraphs(newParagraphs);
     
     // 디바운스 처리를 위한 타이머
@@ -45,7 +54,7 @@ export default function Text() {
         summary_text: newParagraphs.join('<br>')
       });
     }, 1000);
-
+  
     return () => clearTimeout(timeoutId);
   };
 

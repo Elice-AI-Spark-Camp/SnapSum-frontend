@@ -135,7 +135,7 @@ export default function Img() {
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
-              message={`당신이 남긴 글로 ${routeState.paragraphCount}개의 이미지를 만들어 보았어요.\n필요없는 이미지를 지우거나 리텍스트를 통해 새로운 이미지를 찾아볼 수 있어요.`}
+              message={`당신이 남긴 글로 ${images.length}개의 이미지를 만들어 보았어요.\n필요없는 이미지를 지우거나 리텍스트를 통해 새로운 이미지를 찾아볼 수 있어요.`}
               showNavigationButtons
               onPrevClick={goBack}
             />
