@@ -70,7 +70,7 @@ export default function Text() {
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
           currentStep={routeState.currentStep}
-          platform={routeState.platform}
+          platform={summaryState.platform}
           paragraphCount={paragraphs.length}
         />
       </div>

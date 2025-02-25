@@ -25,10 +25,10 @@ export default function TTS() {
   }, [routeState?.tts]);
 
   const ttsOptions = [
-    { id: 'female_1', label: '여성 1', sublabel: '목소리에 대한\n간단한 설명' },
-    { id: 'female_2', label: '여성 2', sublabel: '목소리에 대한\n간단한 설명' },
-    { id: 'male_1', label: '남성 1', sublabel: '목소리에 대한\n간단한 설명' },
-    { id: 'male_2', label: '남성 2', sublabel: '목소리에 대한\n간단한 설명' }
+    { id: 'female_1', label: '여성 1', sublabel: '높고 명량한\n여성 목소리' },
+    { id: 'female_2', label: '여성 2', sublabel: '중저음의 차분한\n여성 목소리' },
+    { id: 'male_1', label: '남성 1', sublabel: '중저음의 단정한\n남성 목소리' },
+    { id: 'male_2', label: '남성 2', sublabel: '높고 캐주얼한\n남성 목소리' }
   ];
 
   if (isLoading || !routeState) {
