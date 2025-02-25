@@ -17,72 +17,85 @@ export interface GenerateImagesResponse {
   total_images: number;
 }
 
-// 이미지 URL을 프록시 경로로 변환하는 헬퍼 함수
-const convertImageUrl = (url: string) => {
-  // URL에서 파일명만 추출 (/uploads/image.png -> image.png)
-  const filename = url.split('/').pop();
-  return `/uploads/${filename}`;
-};
+const API_BASE_URL = 'https://ccqapyxttsnqmhxx.tunnel-pt.elice.io';
 
 export const imageAPI = {
   generateAll: async (data: GenerateImagesRequest): Promise<GenerateImagesResponse> => {
     try {
+      console.log('Generating images with data:', data);
+
       const response = await api.post('/images/generate-all', {
         summary_id: Number(data.summary_id),
-        style: data.style || 'polaroid'  // 기본값 설정
+        style: data.style || 'polaroid',
       });
 
-      // 응답의 이미지 URL들을 프록시 경로로 변환
+      console.log('Server response:', response.data);
+
+      // 이미지 URL을 Elice 도메인으로 변환
       const modifiedImages = response.data.images.map((image: ImageData) => ({
         ...image,
-        image_url: convertImageUrl(image.image_url)
+        image_url: image.image_url.startsWith('http') 
+          ? image.image_url 
+          : `${API_BASE_URL}/images/${image.image_url}`
       }));
 
       return {
         ...response.data,
         images: modifiedImages
       };
-
     } catch (error: any) {
-      console.error('API Error:', error.response || error);
-
-      if (error.response) {
-        const errorMessage = error.response.data?.message ||
-          error.response.data?.error ||
-          '이미지 생성 중 오류가 발생했습니다.';
-        throw new Error(errorMessage);
-      } else if (error.request) {
-        throw new Error('서버와의 통신 중 오류가 발생했습니다.');
-      } else {
-        throw new Error('이미지 생성 요청을 보내는 중 오류가 발생했습니다.');
+      console.error('Generate Images Error:', {
+        error,
+        response: error.response,
+        data: error.response?.data
+      });
+      
+      if (error.response?.status === 400) {
+        throw new Error('유효하지 않은 요약 ID입니다.');
       }
+      
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error 
+        || '이미지 생성 중 오류가 발생했습니다.';
+      
+      throw new Error(errorMessage);
     }
   },
 
   regenerateOne: async (imageId: string): Promise<ImageData> => {
     try {
-      const response = await api.post(`/images/${imageId}/regenerate`);
+      console.log('Regenerating image:', imageId);
+      
+      // PUT 방식으로 변경
+      const response = await api.put(`/images/${imageId}/regenerate`);
+      
+      console.log('Regenerate response:', response.data);
 
-      // 재생성된 이미지의 URL도 프록시 경로로 변환
+      // 이미지 URL 변환
+      const imageUrl = response.data.image_url.startsWith('http')
+        ? response.data.image_url
+        : `${API_BASE_URL}/images/${response.data.image_url}`;
+
       return {
         ...response.data,
-        image_url: convertImageUrl(response.data.image_url)
+        image_url: imageUrl
       };
-
     } catch (error: any) {
-      console.error('API Error:', error.response || error);
-
-      if (error.response) {
-        const errorMessage = error.response.data?.message ||
-          error.response.data?.error ||
-          '이미지 재생성 중 오류가 발생했습니다.';
-        throw new Error(errorMessage);
-      } else if (error.request) {
-        throw new Error('서버와의 통신 중 오류가 발생했습니다.');
-      } else {
-        throw new Error('이미지 재생성 요청을 보내는 중 오류가 발생했습니다.');
+      console.error('Regenerate Image Error:', {
+        error,
+        response: error.response,
+        data: error.response?.data
+      });
+      
+      if (error.response?.status === 400) {
+        throw new Error('유효하지 않은 이미지 ID입니다.');
       }
+      
+      const errorMessage = error.response?.data?.message 
+        || error.response?.data?.error 
+        || '이미지 재생성 중 오류가 발생했습니다.';
+      
+      throw new Error(errorMessage);
     }
   }
 };
-
