@@ -1,63 +1,90 @@
-import { useRouter } from 'next/router';
-import { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Layout from "@/components/layout/Layout";
 import StepProgressBar from "@/components/common/StepProgressBar";
 import ChatMessage from "@/components/common/ChatMessage";
 import CustomHead from "@/components/common/CustomHead";
 import VideoButton from "@/components/common/VideoButton";
 import ProgressBar from "@/components/common/ProgressBar";
+import { useRouteManager } from '@/hooks/useRouteManager';
+import { useVideoMutation } from '@/services/useVideoMutation';
 
 export default function Video() {
-  const router = useRouter();
-  const { platform, paragraphCount, tts } = router.query;
-  const platformName = typeof platform === 'string' ? platform : '';
-  const count = typeof paragraphCount === 'string' ? parseInt(paragraphCount, 10) : 0;
-  
+  const { routeState, navigateTo, isLoading } = useRouteManager();
+  const { generateVideoMutation } = useVideoMutation();
+
+  const platformName = routeState?.platform || '';
+  const count = routeState?.paragraphCount || 0;
+
+  // 플랫폼별 최대 영상 길이와 플랫폼 표시명 설정
+  let videoLength = '90초';
+  let platformDisplayName = platformName;
+  if (platformName.toLowerCase() === 'tiktok') {
+    videoLength = '60초';
+    platformDisplayName = 'TikTok';
+  } else if (platformName.toLowerCase() === 'instagram') {
+    videoLength = '90초';
+    platformDisplayName = 'Instagram';
+  } else if (platformName.toLowerCase() === 'youtube') {
+    videoLength = '3분';
+    platformDisplayName = 'YouTube Shorts';
+  }
+  // 필요에 따라 다른 플랫폼도 추가
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (generateVideoMutation.isSuccess) {
+      setProgress(100);
+      navigateTo('complete');
+    }
+  }, [generateVideoMutation.isSuccess, navigateTo]);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
     if (isGenerating && progress < 100) {
-      const timer = setInterval(() => {
+      timer = setInterval(() => {
         setProgress(prev => {
           const next = prev + 1;
           if (next >= 100) {
-            clearInterval(timer);
-            // 100%가 되면 완료 페이지로 전환
-            router.push({
-              pathname: '/complete',
-              query: { 
-                platform: platformName,
-                paragraphCount: count,
-                tts: tts
-              }
-            });
+            if (timer) clearInterval(timer);
             return 100;
           }
           return next;
         });
       }, 100);
-
-      return () => clearInterval(timer);
     }
-  }, [isGenerating, progress, router, platformName, count, tts]);
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isGenerating, progress]);
 
   const handleBack = () => {
     if (!isGenerating) {
-      router.push({
-        pathname: '/img',
-        query: { 
-          platform: platformName,
-          paragraphCount: count,
-          tts: tts
-        }
-      });
+      navigateTo('img');
     }
   };
 
   const handleCreateVideo = () => {
+    const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
+    if (!summaryState?.summaryId) {
+      console.error('요약 ID가 없습니다.');
+      return;
+    }
     setIsGenerating(true);
+    generateVideoMutation.mutate({ summaryId: summaryState.summaryId });
   };
+
+  if (isLoading || !routeState) {
+    return (
+      <Layout showInfo={false}>
+        <CustomHead title="SNAPSUM - 영상 제작" />
+        <div className="flex justify-center items-center h-screen">
+          <p>Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout showInfo={false}>
@@ -65,9 +92,10 @@ export default function Video() {
       
       <div className="sticky top-0 bg-white z-50">
         <StepProgressBar
-          currentStep={4}
+          currentStep={routeState.currentStep}
           platform={platformName}
           paragraphCount={count}
+          imageCount={count}
         />
       </div>
 
@@ -76,7 +104,7 @@ export default function Video() {
           {!isGenerating && (
             <div className="mb-6 w-fit">
               <ChatMessage
-                message={`선택한 ○○○ TTS와\n${count}개의 이미지로 instagram에 업로드 될\n90초 영상이 생성됩니다.`}
+                message={`선택한 TTS와\n${count}개의 이미지로 ${platformDisplayName}에 업로드 될\n${videoLength} 영상이 생성됩니다.`}
                 showNavigationButtons
                 onPrevClick={handleBack}
               />
@@ -85,7 +113,6 @@ export default function Video() {
 
           {isGenerating ? (
             <div className="flex flex-col items-center gap-8 mt-8">
-              {/* 로딩 스피너 */}
               <div className="relative w-20 h-20">
                 <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
                 <div 
