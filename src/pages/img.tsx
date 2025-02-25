@@ -30,7 +30,7 @@ export default function Img() {
     const loadAndGenerateImages = async () => {
       try {
         const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
-        
+
         // 로컬에 이미 이미지가 있다면 바로 사용
         if (summaryState.images?.length > 0) {
           const paragraphMap = summaryState.images.reduce(
@@ -42,7 +42,7 @@ export default function Img() {
           );
           setParagraphTexts(paragraphMap);
           setImages(summaryState.images);
-          
+
           // 저장된 스타일이 있다면 로드
           if (summaryState.style) {
             setSelectedStyle(summaryState.style);
@@ -68,7 +68,7 @@ export default function Img() {
   const generateImages = async () => {
     try {
       const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
-      
+
       if (!summaryState.summaryId) {
         throw new Error('요약 정보를 찾을 수 없습니다.');
       }
@@ -78,7 +78,7 @@ export default function Img() {
         summary_id: Number(summaryState.summaryId),
         style: selectedStyle
       });
-      
+
       // onSuccess에서 localStorage 업데이트 외에 상태도 직접 갱신
       localStorage.setItem('summaryState', JSON.stringify({
         ...summaryState,
@@ -114,14 +114,32 @@ export default function Img() {
   const handleRegenerate = (imageId: string) => {
     regenerateImageMutation.mutate(imageId, {
       onSuccess: (newImage) => {
+        // 캐싱 방지 쿼리 파라미터 추가
+        const noCacheImage: ImageData = {
+          ...newImage,
+          image_url: `${newImage.image_url}?t=${Date.now()}`
+        };
+  
         setImages(prev =>
-          prev.map(img => img.image_id === imageId ? newImage : img)
+          prev.map(img => img.image_id === imageId ? noCacheImage : img)
         );
-        setSelectedImage(newImage);
+        setSelectedImage(noCacheImage);
+  
+        // localStorage도 업데이트
+        const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
+        if (summaryState.images) {
+          const updatedImages = summaryState.images.map((img: ImageData) =>
+            img.image_id === imageId ? noCacheImage : img
+          );
+          localStorage.setItem('summaryState', JSON.stringify({
+            ...summaryState,
+            images: updatedImages
+          }));
+        }
       }
     });
   };
-
+  
   const handlePrevImage = () => {
     if (currentImageIndex > 0) {
       const prevImage = images[currentImageIndex - 1];
@@ -157,6 +175,7 @@ export default function Img() {
 
       {selectedImage && (
         <ImageModal
+          key={selectedImage.image_url} // 이미지 URL이 변경될 때마다 컴포넌트를 강제로 다시 렌더링
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
           onRegenerate={handleRegenerate}
@@ -189,9 +208,9 @@ export default function Img() {
                   onPrevClick={goBack}
                 />
               </div>
-              <StyleSelector 
-                onSelectStyle={handleStyleSelect} 
-                selectedStyle={selectedStyle} 
+              <StyleSelector
+                onSelectStyle={handleStyleSelect}
+                selectedStyle={selectedStyle}
               />
               <div className="mt-6 flex justify-center">
                 <button
@@ -228,7 +247,7 @@ export default function Img() {
                   <span>{routeState.platform}</span>
                   <div className="flex items-center gap-2">
                     <span>{images.length}개의 이미지</span>
-                    <button 
+                    <button
                       onClick={handleStartOver}
                       className="text-primary text-sm hover:underline flex items-center gap-1"
                     >

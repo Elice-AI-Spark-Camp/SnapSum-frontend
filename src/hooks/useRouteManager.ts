@@ -59,9 +59,22 @@ export const useRouteManager = () => {
   }, [router.isReady, router.pathname]);
 
   const navigateTo = (path: keyof typeof ROUTE_STEPS) => {
+    // 먼저 상태 업데이트를 하고 (currentStep을 업데이트)
+    setRouteState(prev => {
+      if (!prev) return DEFAULT_STATE;
+      
+      const newState = {
+        ...prev,
+        currentStep: ROUTE_STEPS[path]
+      };
+      localStorage.setItem('routeState', JSON.stringify(newState));
+      return newState;
+    });
+    
+    // 그 다음 라우팅
     router.push(`/${path}`);
   };
-
+  
   const goBack = () => {
     if (!routeState) return;
     
