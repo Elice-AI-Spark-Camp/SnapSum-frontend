@@ -1,5 +1,5 @@
 // components/pages/img/StyleSelector.tsx
-import React, { useState, ReactNode } from 'react';
+import React, { useState } from 'react';
 import { 
   HiOutlineCamera, HiOutlinePhotograph, HiOutlineCube, 
   HiOutlineColorSwatch, HiOutlineUser, HiAdjustments,

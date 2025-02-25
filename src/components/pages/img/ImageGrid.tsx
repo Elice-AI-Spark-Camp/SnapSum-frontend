@@ -11,7 +11,7 @@ interface ImageGridProps {
 
 const ITEMS_PER_PAGE = 9;
 
-const ImageGrid: React.FC<ImageGridProps> = ({ images, onImageClick, paragraphTexts }) => {
+const ImageGrid: React.FC<ImageGridProps> = ({ images, onImageClick }) => {
   const [showAll, setShowAll] = useState(false);
 
   const displayedImages = showAll ? images : images.slice(0, ITEMS_PER_PAGE);

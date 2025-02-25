@@ -10,13 +10,11 @@ import { useRouteManager } from '@/hooks/useRouteManager';
 import { useVideoMutation } from '@/services/useVideoMutation';
 
 export default function Video() {
-  const { routeState, navigateTo, goBack, isLoading } = useRouteManager();
-  const router = useRouter();
+  const { routeState, navigateTo, isLoading } = useRouteManager();
   const { generateVideoMutation } = useVideoMutation();
 
   const platformName = routeState?.platform || '';
   const count = routeState?.paragraphCount || 0;
-  const tts = routeState?.tts || '';
 
   // 플랫폼별 최대 영상 길이와 플랫폼 표시명 설정
   let videoLength = '90초';
