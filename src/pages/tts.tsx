@@ -1,4 +1,3 @@
-// pages/tts.tsx
 import { useState, useEffect } from 'react';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import Layout from "@/components/layout/Layout";
@@ -25,10 +24,30 @@ export default function TTS() {
   }, [routeState?.tts]);
 
   const ttsOptions = [
-    { id: 'female_1', label: '여성 1', sublabel: '높고 명량한\n여성 목소리' },
-    { id: 'female_2', label: '여성 2', sublabel: '중저음의 차분한\n여성 목소리' },
-    { id: 'male_1', label: '남성 1', sublabel: '중저음의 단정한\n남성 목소리' },
-    { id: 'male_2', label: '남성 2', sublabel: '높고 캐주얼한\n남성 목소리' }
+    { 
+      id: 'female_1', 
+      label: '여성 1', 
+      sublabel: '높고 명량한\n여성 목소리',
+      previewUrl: '/assets/audio/female_1.wav'
+    },
+    { 
+      id: 'female_2', 
+      label: '여성 2', 
+      sublabel: '중저음의 차분한\n여성 목소리',
+      previewUrl: '/assets/audio/female_2.wav'
+    },
+    { 
+      id: 'male_1', 
+      label: '남성 1', 
+      sublabel: '중저음의 단정한\n남성 목소리',
+      previewUrl: '/assets/audio/male_1.wav'
+    },
+    { 
+      id: 'male_2', 
+      label: '남성 2', 
+      sublabel: '높고 캐주얼한\n남성 목소리',
+      previewUrl: '/assets/audio/male_2.wav'
+    }
   ];
 
   if (isLoading || !routeState) {
@@ -88,6 +107,7 @@ export default function TTS() {
                   isSelected={selectedTTS === tts.id}
                   label={tts.label}
                   sublabel={tts.sublabel}
+                  previewUrl={tts.previewUrl}
                 />
               ))}
             </div>
