@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { HiArrowCircleRight } from "react-icons/hi";
 
 interface TextEditorProps {
@@ -6,17 +7,18 @@ interface TextEditorProps {
 }
 
 export function TextEditor({ paragraphs, onChange }: TextEditorProps) {
+  const textAreaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
+    // 모바일 환경 체크
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     
-    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-      return;
-    }
+    // 모바일에서는 모든 키 입력 허용
+    if (isMobile) return;
     
+    // 데스크탑에서는 엔터와 백스페이스만 허용
     if (e.key !== 'Enter' && e.key !== 'Backspace') {
-      if (!isMobile) {
-        e.preventDefault();
-      }
+      e.preventDefault();
       return;
     }
     
@@ -48,21 +50,31 @@ export function TextEditor({ paragraphs, onChange }: TextEditorProps) {
   };
   
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
-    const newParagraphs = [...paragraphs];
-    newParagraphs[index] = e.target.value;
-    onChange(newParagraphs);
+    // 모바일 환경 체크
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    // 모바일에서는 텍스트 변경 허용
+    if (isMobile) {
+      const newParagraphs = [...paragraphs];
+      newParagraphs[index] = e.target.value;
+      onChange(newParagraphs);
+    } else {
+      // 데스크탑에서는 텍스트 변경 방지
+      e.preventDefault();
+    }
   };
   
   // Auto height adjustment function
   const adjustHeight = (element: HTMLTextAreaElement) => {
-    element.style.height = 'auto';
+    element.style.height = "auto";
     element.style.height = `${element.scrollHeight}px`;
   };
   
-  // Handle input event to adjust height
-  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
-    adjustHeight(e.currentTarget);
-  };
+  useEffect(() => {
+    textAreaRefs.current.forEach((textarea) => {
+      if (textarea) adjustHeight(textarea);
+    });
+  }, [paragraphs]);
   
   return (
     <div className="space-y-4">
@@ -73,25 +85,29 @@ export function TextEditor({ paragraphs, onChange }: TextEditorProps) {
               <HiArrowCircleRight className="text-primary text-xl" />
             </div>
             <textarea
+              ref={(el) => {
+                textAreaRefs.current[index] = el;
+              }}
               value={text}
               onChange={(e) => handleTextChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              onInput={handleInput}
               className="w-full p-2 resize-none focus:outline-none"
               placeholder="텍스트를 입력하세요..."
+              // 모바일 키보드 최적화 속성들
+              autoCapitalize="sentences"
+              autoCorrect="on"
+              spellCheck={true}
               style={{
-                overflow: 'visible', // 스크롤바 없애고 전체 텍스트 보이기
-                minHeight: '80px',
-                height: 'auto',
-                wordBreak: 'break-word', // 단어 중간에서 줄바꿈
-                overflowWrap: 'break-word', // 긴 단어도 줄바꿈
-                whiteSpace: 'pre-wrap' // 공백과 줄바꿈 보존
+                overflow: "hidden",
+                minHeight: "80px",
+                height: "auto",
+                wordBreak: "break-word",
+                overflowWrap: "break-word",
+                whiteSpace: "pre-wrap",
               }}
             />
           </div>
-          {index < paragraphs.length - 1 && (
-            <div className="w-full h-[2px] bg-gray-default my-1" />
-          )}
+          {index < paragraphs.length - 1 && <div className="w-full h-[2px] bg-gray-default my-1" />}
         </div>
       ))}
     </div>

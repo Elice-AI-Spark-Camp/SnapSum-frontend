@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import { HiPlay, HiPause } from 'react-icons/hi';
 
 interface TTSButtonProps {
@@ -91,7 +91,11 @@ export default function TTSButton({
           )}
         </div>
       </div>
-      <span className="text-[0.625rem] break-words tracking-wide font-medium">{sublabel}</span>
+      <span 
+        className="text-[0.625rem] break-words tracking-wide font-medium whitespace-pre-line"
+      >
+        {sublabel}
+      </span>
     </div>
   );
 }
