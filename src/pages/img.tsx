@@ -111,8 +111,7 @@ export default function Img() {
     setCurrentImageIndex(index);
     setSelectedImage(image);
   };
-
-  const handleRegenerate = (imageId: string) => {
+  const handleRegenerate = (imageId: string, paragraphText?: string) => {
     regenerateImageMutation.mutate(imageId, {
       onSuccess: (newImage) => {
         // 캐싱 방지 쿼리 파라미터 추가
@@ -121,10 +120,21 @@ export default function Img() {
           image_url: `${newImage.image_url}?t=${Date.now()}`
         };
   
+        // 텍스트 유지를 위한 로직 추가
+        const updatedParagraphTexts = {
+          ...paragraphTexts,
+          [imageId]: paragraphText || paragraphTexts[imageId] || ''
+        };
+        setParagraphTexts(updatedParagraphTexts);
+  
         setImages(prev =>
           prev.map(img => img.image_id === imageId ? noCacheImage : img)
         );
-        setSelectedImage(noCacheImage);
+        
+        // 선택된 이미지도 업데이트
+        if (selectedImage?.image_id === imageId) {
+          setSelectedImage(noCacheImage);
+        }
   
         // localStorage도 업데이트
         const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
