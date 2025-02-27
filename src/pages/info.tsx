@@ -24,7 +24,7 @@ export default function Info() {
   }, []);
 
   const validateLink = (link: string) => {
-    const isValidLink = link.includes('blog.naver.com') || link.includes('tistory.com');
+    const isValidLink = link.includes('blog.naver.com');
     if (!isValidLink) {
       setIsError(true);
       showToast("유효한 링크를 입력해주세요.");
@@ -44,7 +44,7 @@ export default function Info() {
       return;
     }
 
-    const isValidLink = inputLink.includes('blog.naver.com') || inputLink.includes('tistory.com');
+    const isValidLink = inputLink.includes('blog.naver.com') ;
     if (isValidLink) {
       updateState({ platform: selectedPlatform });
       createSummaryMutation.mutate({
