@@ -40,16 +40,25 @@ export default function Complete() {
     return null;
   }
 
-  // 다운로드 처리
-  const handleDownload = () => {
-    if (!video?.videoUrl) {
-      showToast('다운로드할 비디오가 없습니다.');
-      return;
-    }
+const handleDownload = () => {
+  if (!video?.videoUrl) {
+    showToast('다운로드할 비디오가 없습니다.');
+    return;
+  }
 
-    // 비디오 URL을 새 탭에서 열어 다운로드 실행
-    window.open(video.videoUrl, '_blank');
-  };
+  // 직접 다운로드 링크 생성
+  const link = document.createElement('a');
+  link.href = video.videoUrl;
+  link.download = `snapsum-video-${new Date().getTime()}.mp4`; // 파일명 지정
+  link.style.display = 'none';
+  document.body.appendChild(link);
+  link.click();
+  
+  // 약간의 지연 후 제거
+  setTimeout(() => {
+    document.body.removeChild(link);
+  }, 100);
+};
 
   // 새 비디오 시작
   const handleNewVideo = () => {

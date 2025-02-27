@@ -36,9 +36,13 @@ export const useVideoService = () => {
     },
     onError: (error: Error) => {
       console.error('Generate Video Error:', error);
-      showToast(error.message || '비디오 생성 중 오류가 발생했습니다.');
+      
+      if (error.message === 'Service Unavailable') {
+        showToast('현재 서버가 혼잡합니다. 잠시 후 다시 시도해 주세요.');
+      } else {
+        showToast(error.message || '비디오 생성 중 오류가 발생했습니다.');
+      }
     },
-    retry: 1,
   });
 
   // 비디오 조회 query hook
