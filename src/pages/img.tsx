@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 // pages/img.tsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import ImageGrid from '@/components/pages/img/ImageGrid';
 import { useRouteManager } from '@/hooks/useRouteManager';
 import { useImageMutation } from '@/services/useImageMutation';
@@ -12,13 +11,12 @@ import NavigationButton from "@/components/common/NavigationButton";
 import CustomHead from "@/components/common/CustomHead";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ImageModal from "@/components/pages/img/ImageModal";
-import StyleSelector from "@/components/pages/img/StyleSelector";
 import { HiArrowPath } from 'react-icons/hi2';
 import { ImageData } from '@/api/ImageApi';
 import StyleSelectorSection from '@/components/pages/img/StyleSelectorSection';
 
 export default function Img() {
-  const { routeState, navigateTo, goBack, isLoading } = useRouteManager();
+  const { routeState, navigateTo, goBack } = useRouteManager();
   const { generateImagesMutation, regenerateImageMutation } = useImageMutation();
   const { showToast } = useToastStore();
   const [selectedImage, setSelectedImage] = useState<ImageData | null>(null);
@@ -27,9 +25,12 @@ export default function Img() {
   const [paragraphTexts, setParagraphTexts] = useState<{ [key: string]: string }>({});
   const [selectedStyle, setSelectedStyle] = useState('polaroid');
   const [showStyleSelector, setShowStyleSelector] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
+  const isGeneratingRef = useRef(false);
 
+  // 초기 데이터 로드
   useEffect(() => {
-    const loadAndGenerateImages = async () => {
+    const loadInitialData = async () => {
       try {
         const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
 
@@ -49,25 +50,29 @@ export default function Img() {
           if (summaryState.style) {
             setSelectedStyle(summaryState.style);
           }
-          return;
+          setShowStyleSelector(false);
+        } else {
+          if (!summaryState.summaryId) {
+            throw new Error('요약 정보를 찾을 수 없습니다.');
+          }
+          setShowStyleSelector(true);
         }
-
-        if (!summaryState.summaryId) {
-          throw new Error('요약 정보를 찾을 수 없습니다.');
-        }
-
-        // 스타일 선택 여부 체크를 위해 상태 업데이트 딜레이
-        setShowStyleSelector(true);
+        setIsInitialized(true);
       } catch (error: any) {
-        console.error('Load Images Error:', error);
+        console.error('초기 데이터 로드 오류:', error);
         showToast(error.message);
+        setIsInitialized(true);
       }
     };
 
-    loadAndGenerateImages();
-  }, []); // 한 번만 실행
+    loadInitialData();
+  }, [showToast]);
 
+  // 이미지 생성 함수
   const generateImages = async () => {
+    if (isGeneratingRef.current) return; // 이미 진행 중이면 중복 요청 방지
+    
+    isGeneratingRef.current = true;
     try {
       const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
 
@@ -81,12 +86,7 @@ export default function Img() {
         style: selectedStyle
       });
 
-      // onSuccess에서 localStorage 업데이트 외에 상태도 직접 갱신
-      localStorage.setItem('summaryState', JSON.stringify({
-        ...summaryState,
-        images: data.images,
-        style: selectedStyle
-      }));
+      // 로컬 상태 및 localStorage 업데이트
       const newParagraphMap = data.images.reduce(
         (acc: Record<string, string>, img: ImageData, index: number) => {
           acc[img.image_id] = summaryState.paragraphs?.[index] || '';
@@ -94,12 +94,21 @@ export default function Img() {
         },
         {}
       );
+      
+      localStorage.setItem('summaryState', JSON.stringify({
+        ...summaryState,
+        images: data.images,
+        style: selectedStyle
+      }));
+      
       setParagraphTexts(newParagraphMap);
       setImages(data.images);
       setShowStyleSelector(false);
     } catch (error: any) {
-      console.error('Generate Images Error:', error);
+      console.error('이미지 생성 오류:', error);
       showToast(error.message);
+    } finally {
+      isGeneratingRef.current = false;
     }
   };
 
@@ -122,31 +131,32 @@ export default function Img() {
           image_url: `${newImage.image_url}?t=${Date.now()}`
         };
 
-        // 텍스트 유지를 위한 로직 추가
+        // 상태 및 localStorage 업데이트
         const updatedParagraphTexts = {
           ...paragraphTexts,
           [imageId]: paragraphText || paragraphTexts[imageId] || ''
         };
         setParagraphTexts(updatedParagraphTexts);
 
-        setImages(prev =>
-          prev.map(img => img.image_id === imageId ? noCacheImage : img)
+        const updatedImages = images.map(img => 
+          img.image_id === imageId ? noCacheImage : img
         );
-
+        setImages(updatedImages);
+        
         // 선택된 이미지도 업데이트
         if (selectedImage?.image_id === imageId) {
           setSelectedImage(noCacheImage);
         }
 
-        // localStorage도 업데이트
+        // localStorage 업데이트
         const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
         if (summaryState.images) {
-          const updatedImages = summaryState.images.map((img: ImageData) =>
+          const newImages = summaryState.images.map((img: ImageData) =>
             img.image_id === imageId ? noCacheImage : img
           );
           localStorage.setItem('summaryState', JSON.stringify({
             ...summaryState,
-            images: updatedImages
+            images: newImages
           }));
         }
       }
@@ -171,25 +181,30 @@ export default function Img() {
 
   const handleStartOver = () => {
     setShowStyleSelector(true);
-    setImages([]);
   };
 
-  // "다음" 버튼 핸들러 수정
+  // "다음" 버튼 핸들러
   const handleNext = async () => {
     if (showStyleSelector) {
       // 스타일 선택 중이면 이미지 생성 후 이미지 보기 화면으로
-      if (generateImagesMutation.isPending) return;
-
+      if (generateImagesMutation.isPending || isGeneratingRef.current) return;
       await generateImages();
-      // generateImages 함수 내에서 이미 setShowStyleSelector(false)를 호출하므로 추가로 호출할 필요 없음
     } else {
       // 이미지 보기 중이면 다음 페이지로
       navigateTo('video');
     }
   };
 
-  if (isLoading || !routeState) {
-    return null;
+  // 로딩 중인 경우
+  if (!isInitialized || !routeState) {
+    return (
+      <Layout showInfo={false}>
+        <CustomHead title="SNAPSUM - 이미지 선택" />
+        <div className="flex justify-center items-center h-screen">
+          <LoadingSpinner message="데이터를 불러오는 중입니다..." />
+        </div>
+      </Layout>
+    );
   }
 
   return (
@@ -220,7 +235,7 @@ export default function Img() {
           currentStep={routeState.currentStep}
           platform={routeState.platform}
           paragraphCount={routeState.paragraphCount}
-          imageCount={images.length}
+          imageCount={images.length || routeState.paragraphCount}
         />
       </div>
 
@@ -231,7 +246,7 @@ export default function Img() {
               selectedStyle={selectedStyle}
               onStyleSelect={handleStyleSelect}
               onPrevClick={goBack}
-              paragraphCount={routeState.paragraphCount || 0} // 문단 개수 전달
+              paragraphCount={routeState.paragraphCount || 0}
             />
           ) : (
             <>
