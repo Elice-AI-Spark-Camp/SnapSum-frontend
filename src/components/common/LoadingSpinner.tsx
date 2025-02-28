@@ -28,7 +28,7 @@ const LoadingSpinner = ({ message = "로딩중...", totalTimeInSeconds = 60 }) =
   };
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-200">
       {/* 반투명 오버레이 */}
       <div className="absolute inset-0 bg-white bg-opacity-80" />
       

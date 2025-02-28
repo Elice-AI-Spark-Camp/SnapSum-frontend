@@ -40,30 +40,40 @@ export default function Complete() {
     return null;
   }
 
-const handleDownload = () => {
-  if (!video?.videoUrl) {
-    showToast('다운로드할 비디오가 없습니다.');
-    return;
-  }
-
-  // 직접 다운로드 링크 생성
-  const link = document.createElement('a');
-  link.href = video.videoUrl;
-  link.download = `snapsum-video-${new Date().getTime()}.mp4`; // 파일명 지정
-  link.style.display = 'none';
-  document.body.appendChild(link);
-  link.click();
+  const handleDownload = () => {
+    if (!video?.videoUrl) {
+      showToast('다운로드할 비디오가 없습니다.');
+      return;
+    }
   
-  // 약간의 지연 후 제거
-  setTimeout(() => {
-    document.body.removeChild(link);
-  }, 100);
-};
+    // 모바일 기기 확인
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // 모바일에서는 새 창에서 열기 (사용자가 길게 눌러 다운로드 가능)
+      window.open(video.videoUrl, '_blank');
+      showToast('영상이 새 창에서 열렸습니다. 길게 눌러 저장하세요.');
+    } else {
+      // 데스크톱에서는 기존 방식대로 다운로드
+      const link = document.createElement('a');
+      link.href = video.videoUrl;
+      link.download = `snapsum-video-${new Date().getTime()}.mp4`;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      
+      // 약간의 지연 후 제거
+      setTimeout(() => {
+        document.body.removeChild(link);
+      }, 100);
+    }
+  };
 
   // 새 비디오 시작
   const handleNewVideo = () => {
     // 로컬 스토리지 초기화
     localStorage.removeItem('summaryState');
+    localStorage.removeItem('routeState');
     clearState();
     navigateTo('info');
   };
@@ -77,6 +87,7 @@ const handleDownload = () => {
           currentStep={routeState.currentStep}
           platform={routeState.platform}
           paragraphCount={routeState.paragraphCount}
+          imageCount={routeState.paragraphCount}
         />
       </div>
 
