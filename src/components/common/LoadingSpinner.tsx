@@ -11,7 +11,7 @@ const LoadingSpinner = ({ message = "로딩중...", totalTimeInSeconds = 60 }) =
         const newProgress = prevProgress + (100 / totalTimeInSeconds);
         return newProgress > 100 ? 100 : newProgress;
       });
-      
+
       setTimeLeft((prevTime) => {
         const newTime = prevTime - 1;
         return newTime < 0 ? 0 : newTime;
@@ -28,10 +28,10 @@ const LoadingSpinner = ({ message = "로딩중...", totalTimeInSeconds = 60 }) =
   };
 
   return (
-    <div className="fixed inset-0 z-200">
+    <div className="fixed inset-0" style={{ zIndex: 9999 }}>
       {/* 반투명 오버레이 */}
       <div className="absolute inset-0 bg-white bg-opacity-80" />
-      
+
       {/* 중앙 정렬된 컨텐츠 */}
       <div className="min-h-screen flex flex-col items-center justify-center relative">
         <div className="flex flex-col items-center gap-8">
@@ -48,11 +48,11 @@ const LoadingSpinner = ({ message = "로딩중...", totalTimeInSeconds = 60 }) =
             <p className="text-sm text-gray-600 mb-4">
               해당 작업은 최대 {Math.ceil(totalTimeInSeconds / 60)}분 이상 소요됩니다. 예상 남은 시간: {formatTimeLeft(timeLeft)}
             </p>
-            
+
             {/* 프로그레스바 컨테이너 */}
             <div className="w-64 bg-gray-200 rounded-full h-2.5 mb-2">
-              <div 
-                className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
+              <div
+                className="bg-primary h-3 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>

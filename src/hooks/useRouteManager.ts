@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface RouteState {
   platform: string;
@@ -26,71 +26,81 @@ const DEFAULT_STATE: RouteState = {
 export const useRouteManager = () => {
   const router = useRouter();
   const [routeState, setRouteState] = useState<RouteState | null>(null);
+  const [isLoadingState, setIsLoadingState] = useState(true);
 
-  // ✅ 상태 로드: 기존 상태와 다를 때만 업데이트
+  // 초기 상태 로딩 - 컴포넌트가 마운트될 때 한 번만 실행
   useEffect(() => {
-    const savedState = localStorage.getItem('routeState');
-    const parsedState = savedState ? JSON.parse(savedState) : DEFAULT_STATE;
-
-    // 상태가 다를 경우에만 업데이트
-    if (JSON.stringify(parsedState) !== JSON.stringify(routeState)) {
-      setRouteState(parsedState);
+    try {
+      const savedState = localStorage.getItem('routeState');
+      const parsedState = savedState ? JSON.parse(savedState) : DEFAULT_STATE;
+      
+      // 현재 경로에 맞는 단계 설정
+      const currentPath = router.pathname.split('/')[1];
+      const currentStep = ROUTE_STEPS[currentPath as keyof typeof ROUTE_STEPS] || 0;
+      
+      // 단계 정보가 다를 경우 현재 경로에 맞게 업데이트
+      const stateWithCorrectStep = {
+        ...parsedState,
+        currentStep
+      };
+      
+      setRouteState(stateWithCorrectStep);
+      
+      // 로컬 스토리지에도 업데이트된 정보 저장
+      localStorage.setItem('routeState', JSON.stringify(stateWithCorrectStep));
+    } catch (error) {
+      console.error('Error loading route state:', error);
+      setRouteState(DEFAULT_STATE);
+    } finally {
+      // 상태 로딩 완료
+      setIsLoadingState(false);
     }
-  }, []); // ✅ 처음 한 번만 실행 (의존성 배열 없음)
+  }, [router.isReady, router.pathname]);
 
-  // ✅ 현재 경로에 따른 단계 업데이트 (기존 상태와 다를 때만 업데이트)
-  useEffect(() => {
-    if (!router.isReady || !routeState) return;
-
-    const currentPath = router.pathname.split('/')[1];
-    const newStep = ROUTE_STEPS[currentPath as keyof typeof ROUTE_STEPS] || 0;
-
-    if (routeState.currentStep !== newStep) {
-      setRouteState(prev => ({ ...prev!, currentStep: newStep }));
-    }
-  }, [router.isReady, router.pathname]); // ✅ 기존 상태와 다를 때만 변경됨
-
-  // ✅ 상태 변경 시 기존과 비교 후 업데이트
-  const updateState = (updates: Partial<RouteState>) => {
-    if (!routeState) return;
-
-    const newState = { ...routeState, ...updates };
-    if (JSON.stringify(newState) !== JSON.stringify(routeState)) {
-      setRouteState(newState);
-      localStorage.setItem('routeState', JSON.stringify(newState));
-    }
-  };
-
-  const navigateTo = (path: keyof typeof ROUTE_STEPS) => {
-    const newStep = ROUTE_STEPS[path];
-
+  // 상태 업데이트 함수
+  const updateState = useCallback((updates: Partial<RouteState>) => {
     setRouteState(prev => {
-      if (!prev || prev.currentStep === newStep) return prev;
+      if (!prev) return prev;
+      
+      const newState = { ...prev, ...updates };
+      localStorage.setItem('routeState', JSON.stringify(newState));
+      return newState;
+    });
+  }, []);
+
+  // 네비게이션 함수
+  const navigateTo = useCallback((path: keyof typeof ROUTE_STEPS) => {
+    const newStep = ROUTE_STEPS[path];
+    
+    setRouteState(prev => {
+      if (!prev) return prev;
       
       const newState = { ...prev, currentStep: newStep };
       localStorage.setItem('routeState', JSON.stringify(newState));
       return newState;
     });
-
+    
     router.push(`/${path}`);
-  };
+  }, [router]);
 
-  const goBack = () => {
+  // 뒤로가기 함수
+  const goBack = useCallback(() => {
     if (!routeState) return;
-
+    
     const currentStep = routeState.currentStep;
     const paths = Object.entries(ROUTE_STEPS);
     const previousPath = paths.find(([, step]) => step === currentStep - 1)?.[0];
-
+    
     if (previousPath) {
       navigateTo(previousPath as keyof typeof ROUTE_STEPS);
     }
-  };
+  }, [routeState, navigateTo]);
 
-  const clearState = () => {
+  // 상태 초기화 함수
+  const clearState = useCallback(() => {
     localStorage.removeItem('routeState');
     setRouteState(DEFAULT_STATE);
-  };
+  }, []);
 
   return {
     routeState,
@@ -98,6 +108,6 @@ export const useRouteManager = () => {
     goBack,
     updateState,
     clearState,
-    isLoading: !router.isReady
+    isLoading: !router.isReady || isLoadingState
   };
 };
