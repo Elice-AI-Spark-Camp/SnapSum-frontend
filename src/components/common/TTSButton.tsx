@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'; 
 import { HiPlay, HiPause } from 'react-icons/hi';
 
 interface TTSButtonProps {
@@ -9,10 +9,10 @@ interface TTSButtonProps {
   previewUrl?: string;
 }
 
-export default function TTSButton({ 
-  onClick, 
-  isSelected = false, 
-  label, 
+export default function TTSButton({
+  onClick,
+  isSelected = false,
+  label,
   sublabel,
   previewUrl
 }: TTSButtonProps) {
@@ -27,7 +27,7 @@ export default function TTSButton({
       }
     };
   }, [audio]);
-
+  
   const handlePlayClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -52,39 +52,50 @@ export default function TTSButton({
       setIsPlaying(true);
     }
   };
-
+  
   return (
     <div
       onClick={onClick}
       className={`
+        group
         grid grid-cols-2 items-center gap-2 p-4 w-[170px] md:w-[200px] h-[100px]
         rounded-xl border border-gray-default cursor-pointer
         transition-colors duration-200
-        ${isSelected 
-           ? 'bg-secondary border-transparent'
-           : 'bg-white hover:bg-secondary'}
+        ${isSelected
+          ? 'bg-secondary border-transparent'
+          : 'bg-white hover:bg-secondary hover:border-transparent'}
       `}
     >
       <div className="flex flex-col items-center">
         <span className="text-[0.938rem] font-bold text-primary">{label}</span>
-        <div 
+        <div
           onClick={handlePlayClick}
           className="cursor-pointer"
         >
           {isPlaying ? (
             <HiPause
               size={27}
-              className={`transition-colors duration-200 ${isSelected ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+              className={`transition-colors duration-200 
+                ${isSelected 
+                  ? 'text-primary' 
+                  : 'text-secondary group-hover:text-primary'}`}
             />
           ) : (
             <HiPlay
               size={27}
-              className={`transition-colors duration-200 ${isSelected ? 'text-primary' : 'text-secondary hover:text-primary'}`}
+              className={`transition-colors duration-200 
+                ${isSelected 
+                  ? 'text-primary' 
+                  : 'text-secondary group-hover:text-primary'}`}
             />
           )}
         </div>
       </div>
-      <span className="text-[0.625rem] break-words tracking-wide font-medium">{sublabel}</span>
+      <span 
+        className="text-[0.6rem] break-words tracking-wide font-medium whitespace-pre-line"
+      >
+        {sublabel}
+      </span>
     </div>
   );
 }

@@ -42,19 +42,19 @@ export default function Text() {
       // 예시: 사용자에게 알림 (토스트 메시지)
       showToast("문단은 최대 30개까지만 입력할 수 있습니다.");
     }
-    
+
     setParagraphs(newParagraphs);
-    
+
     // 디바운스 처리를 위한 타이머
     const timeoutId = setTimeout(() => {
       if (!summaryState?.summaryId) return;
-      
+
       updateSummaryMutation.mutate({
         summary_id: summaryState.summaryId,
         summary_text: newParagraphs.join('<br>')
       });
     }, 1000);
-  
+
     return () => clearTimeout(timeoutId);
   };
 
@@ -79,7 +79,11 @@ export default function Text() {
         <div className="mt-8 mb-32">
           <div className="mb-6 w-fit">
             <ChatMessage
-              message="안녕하세요, 저는 당신의 소중한 영상 제작을 AI로 도울 SNAPSUM 입니다. 블로그는 링크에 있는 글을 자동 정리 부탁드려요."
+              message={`안녕하세요, 저는 당신의 숏폼 영상 제작을
+              AI로 돕는 SNAPSUM 입니다.
+
+              블로그에 링크에 있는 글을 요약해줍니다.
+              장면이 전환될 부분마다 단락을 나누어 주세요.`}
               showNavigationButtons
               onPrevClick={goBack}
             />
