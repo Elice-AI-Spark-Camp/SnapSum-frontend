@@ -15,6 +15,7 @@ import ImageModal from "@/components/pages/img/ImageModal";
 import StyleSelector from "@/components/pages/img/StyleSelector";
 import { HiArrowPath } from 'react-icons/hi2';
 import { ImageData } from '@/api/ImageApi';
+import StyleSelectorSection from '@/components/pages/img/StyleSelectorSection';
 
 export default function Img() {
   const { routeState, navigateTo, goBack, isLoading } = useRouteManager();
@@ -226,21 +227,12 @@ export default function Img() {
       <div className="relative max-w-[600px] mx-auto px-2">
         <div className="mt-8 mb-32">
           {showStyleSelector ? (
-            <div className="mb-6">
-              <div className="mb-6 w-fit">
-                <ChatMessage
-                  message={`이미지 스타일을 선택해주세요.
-선택한 스타일로 모든 이미지가 생성됩니다.`}
-                  showNavigationButtons
-                  onPrevClick={goBack}
-                />
-              </div>
-              <StyleSelector
-                onSelectStyle={handleStyleSelect}
-                selectedStyle={selectedStyle}
-              />
-              {/* 생성하기 버튼 제거 - 하단 네비게이션 버튼으로 대체 */}
-            </div>
+            <StyleSelectorSection
+              selectedStyle={selectedStyle}
+              onStyleSelect={handleStyleSelect}
+              onPrevClick={goBack}
+              paragraphCount={routeState.paragraphCount || 0} // 문단 개수 전달
+            />
           ) : (
             <>
               <div className="mb-6 w-fit">

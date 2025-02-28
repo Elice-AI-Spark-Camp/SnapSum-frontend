@@ -14,7 +14,7 @@ export default function ChatMessage({
   onPrevClick,
 }: ChatMessageProps) {
   return (
-    <div className="w-full max-w-[264px] mx-auto">
+    <div className="w-full max-w-[280px] mx-auto">
       {/* SNAPSUM 헤더 */}
       <div className="font-bold mb-1 ml-1 text-xs">
         SNAPSUM

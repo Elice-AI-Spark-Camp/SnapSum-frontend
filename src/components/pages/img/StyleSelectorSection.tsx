@@ -7,19 +7,23 @@ interface StyleSelectorSectionProps {
   selectedStyle: string;
   onStyleSelect: (style: string) => void;
   onPrevClick: () => void;
+  paragraphCount: number; // 문단 개수(이미지 개수)를 받는 prop 추가
 }
 
 const StyleSelectorSection: React.FC<StyleSelectorSectionProps> = ({
   selectedStyle,
   onStyleSelect,
-  onPrevClick
+  onPrevClick,
+  paragraphCount
 }) => {
   return (
     <div className="mb-6">
       <div className="mb-6 w-fit">
         <ChatMessage
-          message={`이미지 스타일을 선택해주세요.
-선택한 스타일로 모든 이미지가 생성됩니다.`}
+          message={`당신이 나눈 문단 기준으로 장면이 전환할될 때 마다 
+바뀔 이미지를 ${paragraphCount} 개 생성하겟습니다.
+
+어떤 스타일의 이미지를 생성할까요?`}
           showNavigationButtons
           onPrevClick={onPrevClick}
         />
