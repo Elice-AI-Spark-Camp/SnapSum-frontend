@@ -100,11 +100,16 @@ const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: numbe
   }
 };
 
-  // 텍스트 변경 시도 막음 (모바일은 키보드 표시를 위해 일단 허용하되 실제 변경은 적용 안함)
-  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
-    // 실제로는 아무 변경도 적용하지 않음 (value가 항상 paragraphs[index]로 고정됨)
-    // 이로 인해 키보드는 표시되지만 실제 입력은 불가능
-  };
+ // 텍스트 변경 시도 막음 (모바일은 키보드 표시를 위해 일단 허용하되 실제 변경은 적용 안함)
+const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>, index: number) => {
+  // 파라미터 사용하여 린트 오류 방지
+  const _ = e;
+  const __ = index;
+  
+  // 의도적으로 아무 처리도 하지 않음
+  // 이로 인해 키보드는 표시되지만 실제 입력은 불가능
+  return;
+};
 
   // 텍스트 영역 높이 자동 조정
   const adjustHeight = (element: HTMLTextAreaElement) => {
