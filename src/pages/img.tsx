@@ -72,7 +72,7 @@ export default function Img() {
   // 이미지 생성 함수
   const generateImages = async () => {
     if (isGeneratingRef.current) return; // 이미 진행 중이면 중복 요청 방지
-    
+
     isGeneratingRef.current = true;
     try {
       const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
@@ -95,13 +95,13 @@ export default function Img() {
         },
         {}
       );
-      
+
       localStorage.setItem('summaryState', JSON.stringify({
         ...summaryState,
         images: data.images,
         style: selectedStyle
       }));
-      
+
       setParagraphTexts(newParagraphMap);
       setImages(data.images);
       setShowStyleSelector(false);
@@ -139,11 +139,11 @@ export default function Img() {
         };
         setParagraphTexts(updatedParagraphTexts);
 
-        const updatedImages = images.map(img => 
+        const updatedImages = images.map(img =>
           img.image_id === imageId ? noCacheImage : img
         );
         setImages(updatedImages);
-        
+
         // 선택된 이미지도 업데이트
         if (selectedImage?.image_id === imageId) {
           setSelectedImage(noCacheImage);
