@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // pages/img.tsx
 import { useEffect, useState, useRef } from 'react';
 import ImageGrid from '@/components/pages/img/ImageGrid';
