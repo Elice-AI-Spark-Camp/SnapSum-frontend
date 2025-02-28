@@ -4,12 +4,14 @@ interface NavigationButtonProps {
   direction: 'prev' | 'next';
   onClick: () => void;
   textType?: 'short' | 'long';
+  disabled?: boolean; // disabled 속성 추가
 }
 
 export default function NavigationButton({ 
   direction, 
   onClick, 
-  textType = 'long' 
+  textType = 'long',
+  disabled = false // 기본값 추가
 }: NavigationButtonProps) {
   const getText = () => {
     if (textType === 'short') {
@@ -21,9 +23,12 @@ export default function NavigationButton({
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={`flex items-center gap-1 px-1 py-1 ${
         textType === 'short' ? 'text-xs' : 'text-sm'
-      } text-primary font-bold transition-colors`}
+      } text-primary font-bold transition-colors ${
+        disabled ? 'opacity-50 cursor-not-allowed' : ''
+      }`}
     >
       {direction === 'prev' && <ChevronLeft className="w-5 h-5" />}
       {getText()}

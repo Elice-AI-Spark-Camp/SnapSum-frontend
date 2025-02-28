@@ -92,7 +92,7 @@ export default function TTSButton({
         </div>
       </div>
       <span 
-        className="text-[0.625rem] break-words tracking-wide font-medium whitespace-pre-line"
+        className="text-[0.6rem] break-words tracking-wide font-medium whitespace-pre-line"
       >
         {sublabel}
       </span>

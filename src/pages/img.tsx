@@ -13,7 +13,7 @@ import CustomHead from "@/components/common/CustomHead";
 import LoadingSpinner from "@/components/common/LoadingSpinner";
 import ImageModal from "@/components/pages/img/ImageModal";
 import StyleSelector from "@/components/pages/img/StyleSelector";
-import { HiSparkles, HiArrowPath } from 'react-icons/hi2';
+import { HiArrowPath } from 'react-icons/hi2';
 import { ImageData } from '@/api/ImageApi';
 
 export default function Img() {
@@ -111,6 +111,7 @@ export default function Img() {
     setCurrentImageIndex(index);
     setSelectedImage(image);
   };
+
   const handleRegenerate = (imageId: string, paragraphText?: string) => {
     regenerateImageMutation.mutate(imageId, {
       onSuccess: (newImage) => {
@@ -119,23 +120,23 @@ export default function Img() {
           ...newImage,
           image_url: `${newImage.image_url}?t=${Date.now()}`
         };
-  
+
         // 텍스트 유지를 위한 로직 추가
         const updatedParagraphTexts = {
           ...paragraphTexts,
           [imageId]: paragraphText || paragraphTexts[imageId] || ''
         };
         setParagraphTexts(updatedParagraphTexts);
-  
+
         setImages(prev =>
           prev.map(img => img.image_id === imageId ? noCacheImage : img)
         );
-        
+
         // 선택된 이미지도 업데이트
         if (selectedImage?.image_id === imageId) {
           setSelectedImage(noCacheImage);
         }
-  
+
         // localStorage도 업데이트
         const summaryState = JSON.parse(localStorage.getItem('summaryState') || '{}');
         if (summaryState.images) {
@@ -150,7 +151,7 @@ export default function Img() {
       }
     });
   };
-  
+
   const handlePrevImage = () => {
     if (currentImageIndex > 0) {
       const prevImage = images[currentImageIndex - 1];
@@ -172,6 +173,20 @@ export default function Img() {
     setImages([]);
   };
 
+  // "다음" 버튼 핸들러 수정
+  const handleNext = async () => {
+    if (showStyleSelector) {
+      // 스타일 선택 중이면 이미지 생성 후 이미지 보기 화면으로
+      if (generateImagesMutation.isPending) return;
+
+      await generateImages();
+      // generateImages 함수 내에서 이미 setShowStyleSelector(false)를 호출하므로 추가로 호출할 필요 없음
+    } else {
+      // 이미지 보기 중이면 다음 페이지로
+      navigateTo('video');
+    }
+  };
+
   if (isLoading || !routeState) {
     return null;
   }
@@ -186,7 +201,7 @@ export default function Img() {
 
       {selectedImage && (
         <ImageModal
-          key={selectedImage.image_url} // 이미지 URL이 변경될 때마다 컴포넌트를 강제로 다시 렌더링
+          key={selectedImage.image_url}
           image={selectedImage}
           onClose={() => setSelectedImage(null)}
           onRegenerate={handleRegenerate}
@@ -214,7 +229,8 @@ export default function Img() {
             <div className="mb-6">
               <div className="mb-6 w-fit">
                 <ChatMessage
-                  message="이미지 스타일을 선택해주세요. 선택한 스타일로 모든 이미지가 생성됩니다."
+                  message={`이미지 스타일을 선택해주세요.
+선택한 스타일로 모든 이미지가 생성됩니다.`}
                   showNavigationButtons
                   onPrevClick={goBack}
                 />
@@ -223,31 +239,20 @@ export default function Img() {
                 onSelectStyle={handleStyleSelect}
                 selectedStyle={selectedStyle}
               />
-              <div className="mt-6 flex justify-center">
-                <button
-                  onClick={generateImages}
-                  disabled={generateImagesMutation.isPending}
-                  className="px-6 py-3 bg-primary text-white rounded-md hover:bg-primary-dark transition-colors flex items-center gap-2 shadow-md"
-                >
-                  {generateImagesMutation.isPending ? (
-                    <>
-                      <HiArrowPath className="w-5 h-5 animate-spin" />
-                      <span>생성 중...</span>
-                    </>
-                  ) : (
-                    <>
-                      <HiSparkles className="w-5 h-5" />
-                      <span>이 스타일로 이미지 생성하기</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              {/* 생성하기 버튼 제거 - 하단 네비게이션 버튼으로 대체 */}
             </div>
           ) : (
             <>
               <div className="mb-6 w-fit">
                 <ChatMessage
-                  message={`당신이 남긴 글로 ${images.length}개의 이미지를 만들어 보았어요.\n필요없는 이미지를 지우거나 리텍스트를 통해 새로운 이미지를 찾아볼 수 있어요.`}
+                  message={`당신이 남긴 문단 기준으로 정확히 전달할 때 다
+양한 이미지를 ${images.length} 개 생성했어요.
+
+클릭하면 어느 문단에 들어가는지 확대된 이미지로
+확인할 수 있어요.
+
+생성된 이미지가 마음에 들지 않는다면
+'재생성' 버튼을 눌러 새로 만들 수 있어요.`}
                   showNavigationButtons
                   onPrevClick={goBack}
                 />
@@ -293,8 +298,9 @@ export default function Img() {
           />
           <NavigationButton
             direction="next"
-            onClick={() => navigateTo('video')}
+            onClick={handleNext}
             textType="long"
+            disabled={showStyleSelector && generateImagesMutation.isPending}
           />
         </div>
       </div>
