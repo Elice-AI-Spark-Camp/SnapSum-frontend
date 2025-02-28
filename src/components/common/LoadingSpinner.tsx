@@ -50,9 +50,9 @@ const LoadingSpinner = ({ message = "로딩중...", totalTimeInSeconds = 60 }) =
             </p>
 
             {/* 프로그레스바 컨테이너 */}
-            <div className="w-64 bg-gray-200 rounded-full h-2.5 mb-2">
+            <div className="w-80 bg-gray-200 rounded-full h-2.5 mb-2">
               <div
-                className="bg-primary h-3 rounded-full transition-all duration-300 ease-out"
+                className="bg-primary h-2.5 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
