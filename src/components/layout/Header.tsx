@@ -10,7 +10,7 @@ interface HeaderProps {
 
 export default function Header({ showInfo = true }: HeaderProps) {
   const router = useRouter();
-  const { goBack, routeState } = useRouteManager();
+  const { goBack, routeState,clearState } = useRouteManager();
 
   const handleBackClick = () => {
     if (!routeState) return;
@@ -22,6 +22,10 @@ export default function Header({ showInfo = true }: HeaderProps) {
   };
 
   const handleLogoClick = () => {
+    // 로컬 스토리지 초기화
+    localStorage.removeItem('summaryState');
+    localStorage.removeItem('routeState');
+    clearState();
     router.push('/'); // 로고 클릭 시 홈('/')으로 이동
   };
 
@@ -32,7 +36,7 @@ export default function Header({ showInfo = true }: HeaderProps) {
         <button onClick={handleBackClick} className="cursor-pointer">
           <ChevronLeft className="w-6 h-6 text-primary" />
         </button>
-        
+
         {/* 로고 클릭 시 홈으로 이동 */}
         <div className="absolute left-1/2 transform -translate-x-1/2 mt-5 cursor-pointer" onClick={handleLogoClick}>
           <Image
@@ -43,7 +47,7 @@ export default function Header({ showInfo = true }: HeaderProps) {
             priority
           />
         </div>
-        
+
         {/* 정보 아이콘 */}
         {showInfo && <IoInformationCircleOutline className="w-6 h-6 text-primary" />}
       </div>
