@@ -59,6 +59,14 @@ export default function Text() {
   };
 
   const handleNext = () => {
+    // 빈 문단 체크
+    const hasEmptyParagraph = paragraphs.some(paragraph => paragraph.trim() === '');
+    
+    if (hasEmptyParagraph) {
+      showToast("빈 문단이 있습니다. 내용을 삭제해주세요.");
+      return;
+    }
+    
     updateState({ paragraphCount: paragraphs.length });
     navigateTo('tts');
   };
