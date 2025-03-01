@@ -52,10 +52,9 @@ export function TextEditor({ paragraphs, onChange }: TextEditorProps) {
         showToast("문단의 중간 부분에서만 분리할 수 있습니다.");
         return;
       }
-
       // 줄바꿈 기준으로 나누기 위해 수정
-      let firstHalf = currentText.slice(0, cursorPosition).trimEnd();
-      let secondHalf = currentText.slice(cursorPosition).trimStart();
+      const firstHalf = currentText.slice(0, cursorPosition).trimEnd();
+      const secondHalf = currentText.slice(cursorPosition).trimStart();
 
       // 분할 후 어느 한쪽이 비어있다면 분할 방지
       if (firstHalf.trim() === '' || secondHalf.trim() === '') {
