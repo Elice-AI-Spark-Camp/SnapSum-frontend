@@ -90,7 +90,7 @@ export default function Text() {
           </div>
 
           <div className="bg-gray-light rounded-full p-4 mb-6 flex items-center justify-center gap-5">
-            <IoInformationCircle className="text-primary text-lg" />
+            <IoInformationCircle className="text-primary w-10 h-5" />
             <span className="text-sm text-start">
               Enter키를 누르면 문단이 분리됩니다.
               <br />

@@ -26,7 +26,7 @@ export default function StepProgressBar({
   const progress = (currentStep / steps.length) * 100;
 
   return (
-    <div className="w-full fixed top-12 left-0 right-0 bg-white z-50 px-2 py-6">
+    <div className="w-full fixed top-12 left-0 right-0 bg-white z-50 px-2 py-2 pt-8">
       <div className="max-w-[600px] mx-auto relative">
         {/* Step labels */}
         <div className="absolute top-0 left-0 w-full flex justify-between transform -translate-y-6">

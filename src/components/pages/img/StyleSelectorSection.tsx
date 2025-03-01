@@ -63,18 +63,20 @@ const StyleSelectorSection: React.FC<StyleSelectorSectionProps> = ({
         />
       </div>
       <div className="bg-gray-light rounded-full p-4 mb-6 flex items-center justify-center gap-5">
-        <IoInformationCircle className="text-primary text-lg" />
+      <IoInformationCircle className="text-primary w-10 h-5" />
         <span className="text-sm text-start">
           {getCategoryDescription()}
         </span>
       </div>
 
-      <StyleSelector
-        onSelectStyle={onStyleSelect}
-        selectedStyle={selectedStyle}
-        onCategoryChange={handleCategoryChange} // 카테고리 변경 이벤트 핸들러 전달
-      />
-    </div>
+      <div className="max-h-[50vh] pb-10 overflow-y-auto overflow-x-hidden" style={{ minHeight: '300px' }}>
+  <StyleSelector
+    onSelectStyle={onStyleSelect}
+    selectedStyle={selectedStyle}
+    onCategoryChange={handleCategoryChange}
+  />
+</div>
+  </div>
   );
 };
 
