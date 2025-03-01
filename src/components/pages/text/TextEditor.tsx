@@ -25,73 +25,74 @@ export function TextEditor({ paragraphs, onChange }: TextEditorProps) {
   // TextEditor 컴포넌트 내의 handleKeyDown 함수 수정
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
     // 오직 Enter와 Backspace만 특별 처리, 나머지는 모두 막음 (방향키, 복사/붙여넣기 제외)
-    if (e.key !== 'Enter' && e.key !== 'Backspace' && 
-        e.key !== 'ArrowUp' && e.key !== 'ArrowDown' && 
-        e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' &&
-        !(e.ctrlKey || e.metaKey)) {
+    if (e.key !== 'Enter' && e.key !== 'Backspace' &&
+      e.key !== 'ArrowUp' && e.key !== 'ArrowDown' &&
+      e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' &&
+      !(e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       return;
     }
-    
-    // Enter 키 처리 - 문단 분할
+
+    // Enter 키 처리 부분 수정
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      
+
       const textarea = e.target as HTMLTextAreaElement;
       const cursorPosition = textarea.selectionStart || 0;
       const currentText = paragraphs[index];
-      
+
       // 빈 문단인 경우 분할 방지
       if (currentText.trim() === '') {
         showToast("빈 문단은 생성할 수 없습니다.");
         return;
       }
-      
+
       // 커서 위치가 문단의 시작이나 끝인 경우 분할 방지
       if (cursorPosition === 0 || cursorPosition === currentText.length) {
         showToast("문단의 중간 부분에서만 분리할 수 있습니다.");
         return;
       }
-      
-      const firstHalf = currentText.slice(0, cursorPosition);
-      const secondHalf = currentText.slice(cursorPosition);
-      
+
+      // 줄바꿈 기준으로 나누기 위해 수정
+      let firstHalf = currentText.slice(0, cursorPosition).trimEnd();
+      let secondHalf = currentText.slice(cursorPosition).trimStart();
+
       // 분할 후 어느 한쪽이 비어있다면 분할 방지
       if (firstHalf.trim() === '' || secondHalf.trim() === '') {
         showToast("분리된 문단은 내용이 있어야 합니다.");
         return;
       }
-      
+
       const newParagraphs = [...paragraphs];
       newParagraphs.splice(index, 1, firstHalf, secondHalf);
       onChange(newParagraphs);
-      
+
       // 다음 문단으로 포커스 이동
       setTimeout(() => {
         if (textAreaRefs.current[index + 1]) {
           textAreaRefs.current[index + 1]?.focus();
         }
       }, 10);
-    } 
-    // Backspace 키 처리 - 문단 시작에서만 이전 문단과 병합
+    }
+    // Backspace 키 처리 부분 수정
     else if (e.key === 'Backspace') {
       const textarea = e.target as HTMLTextAreaElement;
       const cursorPosition = textarea.selectionStart || 0;
-      
+
       // 문단 시작점에서만 병합 허용
       if (cursorPosition === 0) {
         if (index > 0) {
           e.preventDefault();
-          
-          const prevText = paragraphs[index - 1];
-          const currentText = paragraphs[index];
-          
+
+          const prevText = paragraphs[index - 1].trimEnd(); // 앞 문단의 끝부분 공백 제거
+          const currentText = paragraphs[index]; // 현재 문단
+
           const newParagraphs = [...paragraphs];
-          newParagraphs[index - 1] = prevText + currentText;
+          newParagraphs[index - 1] = prevText + currentText; // 공백 없이 문단 합치기
           newParagraphs.splice(index, 1);
           onChange(newParagraphs);
-          
-          // 이전 문단으로 포커스 이동, 커서는 병합 지점
+
+          // 이전 문단으로 포커스 이동, 커서는 병합 지점 (공백 제거 후)
           setTimeout(() => {
             if (textAreaRefs.current[index - 1]) {
               const textarea = textAreaRefs.current[index - 1];
@@ -171,7 +172,7 @@ export function TextEditor({ paragraphs, onChange }: TextEditorProps) {
       ))}
 
       {/* 도움말 안내 */}
-      <div className="text-sm text-gray-500 mt-4 p-3 bg-gray-100 rounded-md">
+      <div className="text-xs text-gray-500 mt-4 p-3 bg-gray-100 rounded-md">
         <p className="mb-1">• Enter로 문단을 나눌 때는 문단 중간에서만 가능합니다.</p>
         <p className="mb-1">• 백스페이스로 문단을 합칠 때는 문단 첫 글자에서만 가능합니다.</p>
         <p>• 빈 문단은 생성되지 않습니다.</p>
